@@ -1,0 +1,11 @@
+{
+  "name": "com.utj.profilermodule.shadercompile",
+  "displayName": "ProfilerModuleForShaderCompile",
+  "version": "0.0.1",
+  "unity": "2020.1",
+  "description": "This package provide profiler module for detect shader compile.",
+  "keywords": [
+    "profiler",
+    "profiling"
+  ]
+}
