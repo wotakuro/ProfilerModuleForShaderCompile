@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using Unity.Profiling;
 using Unity.Profiling.Editor;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using System.Reflection;
@@ -62,6 +64,9 @@ namespace UTJ.Profiler.ShaderCompileModule
             var view = template.Instantiate();
 
             ProfilerWindow.SelectedFrameIndexChanged += OnSelectedFrameIndexChanged;
+            ProfilerDriver.profileCleared += OnProfilerCleared;
+            ProfilerDriver.profileLoaded += OnProfilerLoaded;
+            ProfilerDriver.NewProfilerFrameRecorded += OnNewFrameRecorded;
 
 
             m_CurrentCountLabel = view.Q<Label>("CurrentCreateGpuTime");
@@ -95,15 +100,29 @@ namespace UTJ.Profiler.ShaderCompileModule
             m_LoggingEnabled.SetValueWithoutNotify(m_module.logEnabled);
             m_LoggingEnabled.RegisterCallback<ChangeEvent<bool>>(OnChangeLogEnable);
 
+            //
+            m_ShowOnlyCurrentFrame.SetValueWithoutNotify(true);
+            m_ShowOnlyCurrentFrame.RegisterCallback<ChangeEvent<bool>>(OnChangeFilterCurrentFrame);
+
             // setup btn
             m_CreateNewTargetBtn.clicked += OnClickNewTargetButton;
             m_OpenLogFolder.clicked += OnClickOpenLogFolderButton;
             m_ExportCsv.clicked += OnClickExportCsv;
 
-            SetupShaderInfo();
+            SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
             return view;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
+            ProfilerWindow.SelectedFrameIndexChanged -= OnSelectedFrameIndexChanged;
+            base.Dispose(disposing);
+        }
+
+
+        #region UI_EVENT
         private void OnClickExportCsv()
         {
 
@@ -135,12 +154,9 @@ namespace UTJ.Profiler.ShaderCompileModule
             m_module.targetAsset = evt.newValue;
         }
 
-        protected override void Dispose(bool disposing)
+        private void OnChangeFilterCurrentFrame(ChangeEvent<bool> evt)
         {
-            if (!disposing)
-                return;
-            ProfilerWindow.SelectedFrameIndexChanged -= OnSelectedFrameIndexChanged;
-            base.Dispose(disposing);
+            SetupShaderInfo(ProfilerWindow.selectedFrameIndex,true);
         }
 
         private void OnSelectedFrameIndexChanged(long selectedFrameIndex)
@@ -149,7 +165,14 @@ namespace UTJ.Profiler.ShaderCompileModule
                 m_CurrentTotalCountLabel, m_CurrentTotalLabel);
             SetupCounterData(selectedFrameIndex + 1, m_NextCountLabel, m_NextTimeLabel,
                 m_NextTotalCountLabel, m_NextTotalLabel);
+
+
+            if (this.m_ShowOnlyCurrentFrame.value)
+            {
+                SetupShaderInfo(selectedFrameIndex);
+            }
         }
+        #endregion UI_EVENT
 
 
         private void SetupCounterData(long selectedFrameIndex,Label compileCount,Label compileTime,Label totalCount,Label totalTime)
@@ -190,17 +213,57 @@ namespace UTJ.Profiler.ShaderCompileModule
         }
 
 
-        private void SetupShaderInfo()
+        #region PROFILER_EVENT
+        private void OnProfilerCleared()
         {
-            m_ShaderCompileList.Clear();
-            var watcher = this.m_module.watcher;
-            var all = watcher.allCompileInProfiler;
-
-            foreach(var info in all)
+            m_module.watcher.ClearData();
+            SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
+        }
+        private void OnProfilerLoaded()
+        {
+            m_module.watcher.ClearData();
+            m_module.watcher.ScanAll();
+            SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
+        }
+        private void OnNewFrameRecorded(int connectId, int frameIdx)
+        {
+            m_module.watcher.ScanAll();
+            if (!this.m_ShowOnlyCurrentFrame.value)
             {
-                string str = info.frameIdx + ";;"+info.shaderName + ";;" +
-                    info.pass + ";;" + info.stage + ";;" + info.keyword;
-                m_ShaderCompileList.Add(new Label(str));
+                SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
+            }
+        }
+        #endregion PROFILER_EVENT
+        private void SetupShaderInfo(long frameIdx,bool filterChange=false)
+        {
+            var watcher = this.m_module.watcher;
+            List<ShaderCompileInfo> compileInfoList;
+
+            if (m_ShowOnlyCurrentFrame.value)
+            {
+                compileInfoList = watcher.GetFrameCompiles((int)frameIdx);
+            }
+            else
+            {
+                compileInfoList = watcher.allCompileInProfiler;
+                if (!watcher.isDirtyAllList && !filterChange)
+                {
+                    return;
+                }
+            }
+
+            Debug.Log("SetupShaderInfo " + frameIdx);
+
+            m_ShaderCompileList.Clear();
+            // todo
+            if (compileInfoList != null)
+            {
+                foreach (var info in compileInfoList)
+                {
+                    string str = info.frameIdx + ";;" + info.shaderName + ";;" +
+                        info.pass + ";;" + info.stage + ";;" + info.keyword;
+                    m_ShaderCompileList.Add(new Label(str));
+                }
             }
         }
     }

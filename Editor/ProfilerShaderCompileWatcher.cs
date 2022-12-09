@@ -11,15 +11,6 @@ namespace UTJ.Profiler.ShaderCompileModule
 {
     internal class ProfilerShaderCompileWatcher 
     {
-        public class ShaderCompileInfo
-        {
-            public int frameIdx;
-            public string shaderName;
-            public string pass;
-            public string stage;
-            public string keyword;
-
-        }
 
 
         private int shaderCompileMakerId = FrameDataView.invalidMarkerId;
@@ -73,6 +64,11 @@ namespace UTJ.Profiler.ShaderCompileModule
                 }
                 return allFrameBuffer;
             }
+        }
+
+        public bool isDirtyAllList
+        {
+            get { return isDirty; }
         }
 
         public List<ShaderCompileInfo> GetFrameCompiles(int frameIdx)
