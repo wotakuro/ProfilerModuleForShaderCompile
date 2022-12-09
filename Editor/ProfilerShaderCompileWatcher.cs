@@ -5,7 +5,7 @@ using UnityEditor.Profiling;
 using UnityEditorInternal;
 using UnityEngine.Profiling;
 using UnityEditor;
-
+using System.Text;
 
 namespace UTJ.Profiler.ShaderCompileModule
 {
@@ -20,6 +20,10 @@ namespace UTJ.Profiler.ShaderCompileModule
         private Dictionary<int, List<ShaderCompileInfo>> compileInfoByFrameIdx = new Dictionary<int, List<ShaderCompileInfo>>();
         private bool isDirty = true;
         private int latestFrameIndex = -1;
+
+        private ShaderVariantCollection targetAsset = null;
+        private StringBuilder stringBuilder = new StringBuilder();
+        private string logFile;
 
 
         public void ScanLatest()
@@ -110,7 +114,7 @@ namespace UTJ.Profiler.ShaderCompileModule
                         var pass = frameData.GetSampleMetadataAsString(i, 1);
                         var stage = frameData.GetSampleMetadataAsString(i, 2);
                         var keyword = frameData.GetSampleMetadataAsString(i, 3);
-
+                        var timeMs = frameData.GetSampleTimeMs(i);
                         var compieInfo = new ShaderCompileInfo()
                         {
                             frameIdx = frameIdx,
@@ -118,6 +122,7 @@ namespace UTJ.Profiler.ShaderCompileModule
                             pass = pass,
                             stage = stage,
                             keyword = keyword,
+                            timeMs = timeMs,
                         };
                         if(buffer == null)
                         {
@@ -134,6 +139,10 @@ namespace UTJ.Profiler.ShaderCompileModule
                 isDirty = true;
             }
             latestFrameIndex = frameIdx;
+
+            // Set to ShaderVariantCollection
+            AddToShaderVariantCollection(buffer);
+            AddToLogFile(buffer);
         }
 
         public void RemoveOldFrames(int frameIdx)
@@ -158,6 +167,67 @@ namespace UTJ.Profiler.ShaderCompileModule
             latestFrameIndex = 0;
             this.compileInfoByFrameIdx.Clear();
             isDirty = true;
+        }
+
+        private void AddToShaderVariantCollection(List<ShaderCompileInfo> compileInfoList)
+        {
+            if(targetAsset == null) { return; }
+            if(compileInfoList == null) { return; }
+            foreach (var info in compileInfoList)
+            {
+                var variant = info.GetShaderariant();
+                if (!targetAsset.Contains(variant))
+                {
+                    targetAsset.Add(variant);
+                }
+            }
+        }
+        private void AddToLogFile(List<ShaderCompileInfo> compileInfoList)
+        {
+            if (compileInfoList == null) { return; }
+            if (string.IsNullOrEmpty(this.logFile))
+            {
+                return;
+            }
+            if(compileInfoList.Count == 0)
+            {
+                return;
+            }
+            stringBuilder.Clear();
+
+            foreach (var info in compileInfoList)
+            {
+                stringBuilder.Append(info.frameIdx).Append(",").
+                    Append(info.shaderName).Append(",").
+                    Append(info.timeMs).Append(",unknown,").
+                    Append(info.pass).Append(",").
+                    Append(info.stage).Append(",").
+                    Append(info.keyword).Append(",\n");
+            }
+            System.IO.File.AppendAllText(logFile, stringBuilder.ToString());
+        }
+
+        public void SetFile(string file)
+        {
+            this.logFile = file;
+            if (!System.IO.File.Exists(file))
+            {
+                string header = "frameIdx,Shader,exec(ms),isWarmupCall,pass,stage,keyword,\n";
+                System.IO.File.WriteAllText(logFile, header);
+            }
+        }
+
+        public void SetTarget(ShaderVariantCollection collection)
+        {
+            if(collection != null)
+            {
+                foreach (var buffer in this.compileInfoByFrameIdx.Values)
+                {
+                    AddToShaderVariantCollection(buffer);
+                }
+
+            }
+            this.targetAsset = collection;
         }
     }
 }
