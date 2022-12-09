@@ -9,9 +9,9 @@ using UnityEditor;
 
 namespace UTJ.Profiler.ShaderCompileModule
 {
-    internal class ProfilerShaderCompileWatcher : EditorWindow
+    internal class ProfilerShaderCompileWatcher 
     {
-        private class ShaderCompileInfo
+        public class ShaderCompileInfo
         {
             public int frameIdx;
             public string shaderName;
@@ -21,45 +21,74 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         }
 
-        [MenuItem("Tools/ProfilerShaderCompileWatcher")]
-        public static void Create()
+
+        private int shaderCompileMakerId = FrameDataView.invalidMarkerId;
+
+        private List<int> indexBuffer = new List<int>();
+        private List<ShaderCompileInfo> allFrameBuffer = new List<ShaderCompileInfo>();
+        private Dictionary<int, List<ShaderCompileInfo>> compileInfoByFrameIdx = new Dictionary<int, List<ShaderCompileInfo>>();
+        private bool isDirty = true;
+        private int latestFrameIndex = -1;
+
+
+        public void ScanLatest()
         {
-            ProfilerShaderCompileWatcher.GetWindow<ProfilerShaderCompileWatcher>();
+            int idx = latestFrameIndex;
+            if( idx < ProfilerDriver.firstFrameIndex)
+            {
+                idx = ProfilerDriver.firstFrameIndex;
+            }
+            for (int i = idx; i < ProfilerDriver.lastFrameIndex; i++)
+            {
+                ScanFrame(i);
+            }
         }
 
-        int shaderCompileMakerId = FrameDataView.invalidMarkerId;
-        private Vector2 scrollPos;
-        List<ShaderCompileInfo> compileInfos = new List<ShaderCompileInfo>();
-
-        private void OnGUI()
-        {
-            if (GUILayout.Button("Scan"))
-            {
-                Scan();
-            }
-            scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-            foreach (var compileInfo in compileInfos)
-            {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField(compileInfo.frameIdx.ToString(), GUILayout.Width(40));
-                EditorGUILayout.LabelField(compileInfo.shaderName, GUILayout.Width(250));
-                EditorGUILayout.LabelField(compileInfo.pass, GUILayout.Width(80));
-                EditorGUILayout.LabelField(compileInfo.stage, GUILayout.Width(60));
-                EditorGUILayout.LabelField(compileInfo.keyword);
-                EditorGUILayout.EndHorizontal();
-            }
-            EditorGUILayout.EndScrollView();
-        }
-        void Scan()
+        public void ScanAll()
         {
             for (int i = ProfilerDriver.firstFrameIndex; i < ProfilerDriver.lastFrameIndex; i++)
             {
-                Exec(i);
+                ScanFrame(i);
             }
         }
 
-        void Exec(int frameIdx)
+        public List<ShaderCompileInfo> allCompileInProfiler
         {
+            get
+            {
+                if (isDirty)
+                {
+                    allFrameBuffer.Clear();
+                    foreach(var kvs in compileInfoByFrameIdx)
+                    {
+                        var frameCompiles = kvs.Value;
+                        if(frameCompiles != null)
+                        {
+                            foreach(var compile in frameCompiles)
+                            {
+                                allFrameBuffer.Add(compile);
+                            }
+                        }
+                    }
+                }
+                return allFrameBuffer;
+            }
+        }
+
+        public List<ShaderCompileInfo> GetFrameCompiles(int frameIdx)
+        {
+            List<ShaderCompileInfo> list;
+            if(compileInfoByFrameIdx.TryGetValue(frameIdx, out list))
+            {
+                return list;
+            }
+            return null;
+        }
+
+        public void ScanFrame(int frameIdx)
+        {
+            if(latestFrameIndex >= frameIdx) { return; }
+            List<ShaderCompileInfo> buffer = null;
             for (int threadIndex = 0; ; ++threadIndex)
             {
                 using (RawFrameDataView frameData = ProfilerDriver.GetRawFrameDataView(frameIdx, threadIndex))
@@ -94,10 +123,45 @@ namespace UTJ.Profiler.ShaderCompileModule
                             stage = stage,
                             keyword = keyword,
                         };
-                        compileInfos.Add(compieInfo);
+                        if(buffer == null)
+                        {
+                            buffer = new List<ShaderCompileInfo>();
+                        }
+                        buffer.Add(compieInfo);
                     }
                 }
             }
+
+            if (buffer != null)
+            {
+                this.compileInfoByFrameIdx.Add(frameIdx, buffer);
+                isDirty = true;
+            }
+            latestFrameIndex = frameIdx;
+        }
+
+        public void RemoveOldFrames(int frameIdx)
+        {
+            this.indexBuffer.Clear();
+            foreach (var idx in this.compileInfoByFrameIdx.Keys)
+            {
+                if(idx < frameIdx)
+                {
+                    this.indexBuffer.Add(idx);
+                }
+            }
+            foreach (var idx in this.indexBuffer)
+            {
+                this.compileInfoByFrameIdx.Remove(idx);
+                isDirty = true;
+            }
+        }
+
+        public void ClearData()
+        {
+            latestFrameIndex = 0;
+            this.compileInfoByFrameIdx.Clear();
+            isDirty = true;
         }
     }
 }

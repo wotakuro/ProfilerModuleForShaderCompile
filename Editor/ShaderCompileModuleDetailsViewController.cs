@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using System.Reflection;
+using UnityEngine;
 using System.Text;
 using UnityEditor.Profiling;
 
@@ -38,6 +39,7 @@ namespace UTJ.Profiler.ShaderCompileModule
         private Label m_NextTotalLabel;
 
         private ObjectField m_TargetAsset;
+        private Button m_CreateNewTargetBtn;
         private Toggle m_AutoCreateEnabled;
         private Toggle m_LoggingEnabled;
         private Button m_OpenLogFolder;
@@ -47,8 +49,11 @@ namespace UTJ.Profiler.ShaderCompileModule
         private Button m_ExportCsv;
         #endregion
 
+        ShaderCompileProfilerModule m_module;
+
         public ShaderCompileModuleDetailsViewController(ProfilerWindow profilerWindow, ShaderCompileProfilerModule module) : base(profilerWindow) 
         {
+            this.m_module = module;
         }
 
         protected override VisualElement CreateView()
@@ -58,7 +63,6 @@ namespace UTJ.Profiler.ShaderCompileModule
 
             ProfilerWindow.SelectedFrameIndexChanged += OnSelectedFrameIndexChanged;
 
-            UnityEngine.Debug.Log("ModuleÅFÅFCreateView");
 
             m_CurrentCountLabel = view.Q<Label>("CurrentCreateGpuTime");
             m_CurrentTimeLabel = view.Q<Label>("CurrentTotalCount");
@@ -72,13 +76,63 @@ namespace UTJ.Profiler.ShaderCompileModule
 
 
             m_TargetAsset = view.Q<ObjectField>("TargetShaderVariantCollection");
+            m_CreateNewTargetBtn = view.Q<Button>("CreateNewTargetBtn");
             m_AutoCreateEnabled = view.Q<Toggle>("AutoModeEnable");
             m_LoggingEnabled = view.Q<Toggle>("LogOptionEnabled");
             m_OpenLogFolder = view.Q<Button>("LogOpenBtn");
             m_ShowOnlyCurrentFrame = view.Q<Toggle>("ShowOnlyCurrentFrame");
             m_ShaderCompileList = view.Q<ScrollView>("CompileList");
             m_ExportCsv = view.Q<Button>("ExportResultBtn");
+
+            // setup
+            m_TargetAsset.objectType = typeof(ShaderVariantCollection);
+            m_TargetAsset.SetValueWithoutNotify( m_module.targetAsset );
+            m_TargetAsset.RegisterCallback<ChangeEvent<ShaderVariantCollection> >(OnChangeTargetAsset);
+
+            m_AutoCreateEnabled.SetValueWithoutNotify(m_module.autoModeEnabled);
+            m_AutoCreateEnabled.RegisterCallback<ChangeEvent<bool>>(OnChangeAutoMode);
+
+            m_LoggingEnabled.SetValueWithoutNotify(m_module.logEnabled);
+            m_LoggingEnabled.RegisterCallback<ChangeEvent<bool>>(OnChangeLogEnable);
+
+            // setup btn
+            m_CreateNewTargetBtn.clicked += OnClickNewTargetButton;
+            m_OpenLogFolder.clicked += OnClickOpenLogFolderButton;
+            m_ExportCsv.clicked += OnClickExportCsv;
+
+            SetupShaderInfo();
             return view;
+        }
+
+        private void OnClickExportCsv()
+        {
+
+        }
+
+
+        private void OnClickOpenLogFolderButton()
+        {
+
+        }
+        private void OnClickNewTargetButton()
+        {
+            var asset = new ShaderVariantCollection();
+            AssetDatabase.CreateAsset(asset, "Assets/Variant.shadervariants");
+            this.m_TargetAsset.value = asset;
+        }
+
+        private void OnChangeAutoMode(ChangeEvent<bool> evt)
+        {
+            m_module.autoModeEnabled = evt.newValue;
+        }
+        private void OnChangeLogEnable(ChangeEvent<bool> evt)
+        {
+            m_module.logEnabled = evt.newValue;
+        }
+
+        private void OnChangeTargetAsset(ChangeEvent<ShaderVariantCollection> evt)
+        {
+            m_module.targetAsset = evt.newValue;
         }
 
         protected override void Dispose(bool disposing)
@@ -135,5 +189,19 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         }
 
+
+        private void SetupShaderInfo()
+        {
+            m_ShaderCompileList.Clear();
+            var watcher = this.m_module.watcher;
+            var all = watcher.allCompileInProfiler;
+
+            foreach(var info in all)
+            {
+                string str = info.frameIdx + ";;"+info.shaderName + ";;" +
+                    info.pass + ";;" + info.stage + ";;" + info.keyword;
+                m_ShaderCompileList.Add(new Label(str));
+            }
+        }
     }
 }

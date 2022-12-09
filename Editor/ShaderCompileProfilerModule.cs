@@ -3,6 +3,7 @@ using Unity.Profiling;
 using Unity.Profiling.Editor;
 using UnityEditor;
 using UnityEngine.UIElements;
+using UnityEngine;
 using System.Reflection;
 
 //--Module--
@@ -20,15 +21,36 @@ namespace UTJ.Profiler.ShaderCompileModule
             new ProfilerCounterDescriptor("ShaderCompile TotalCount", ProfilerCategory.Scripts),
             new ProfilerCounterDescriptor("ShaderCompile TotalTime", ProfilerCategory.Scripts),
         };
+        #region ACCESS_FROM_VIEW
+        private ProfilerShaderCompileWatcher m_watcher;
+        private ShaderVariantCollection m_targetAsset;
+        private bool m_automodeEnabled;
+        private bool m_logEnabled;
+        #endregion ACCESS_FROM_VIEW
 
-        // Specify a list of Profiler category names, which should be auto-enabled when the module is active.
-        static readonly string[] k_AutoEnabledCategoryNames = new string[]
+        internal ProfilerShaderCompileWatcher watcher
         {
-        ProfilerCategory.Memory.Name,
-        };
+            get { return m_watcher; }
+        }
+        internal ShaderVariantCollection targetAsset
+        {
+            get { return m_targetAsset; }
+            set { m_targetAsset = value; }
+        }
+        internal bool autoModeEnabled
+        {
+            get { return m_automodeEnabled; }
+            set { m_automodeEnabled = value; }
+        }
+        internal bool logEnabled
+        {
+            get { return m_logEnabled; }
+            set { m_logEnabled = value; }
+        }
 
-        public ShaderCompileProfilerModule() : base(k_ChartCounters, autoEnabledCategoryNames: k_AutoEnabledCategoryNames)
+        public ShaderCompileProfilerModule() : base(k_ChartCounters)
         {
+            m_watcher = new ProfilerShaderCompileWatcher();
             // UnityEngine.Debug.Log("CreateModule!!");
             EditorApplication.update += OnUpdate;
         }
@@ -39,6 +61,8 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         void OnUpdate()
         {
+            m_watcher.ScanLatest();
+
             if (!this.ProfilerWindow)
             {
                 //UnityEngine.Debug.Log("DeleteModule!!");

@@ -1,16 +1,20 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
     <ui:Label text="Shader Compile Information" display-tooltip-when-elided="true" style="font-size: 15px; -unity-font-style: bold;" />
     <ui:VisualElement style="margin-left: 20px;">
-        <ui:Label text="Auto ShaderVariantCollection Asset create" display-tooltip-when-elided="true" />
-        <ui:VisualElement style="margin-left: 20px; flex-shrink: 0;">
-            <uie:ObjectField label="Target ShaderVarinat Collection Asset" name="TargetShaderVariantCollection" />
-            <ui:Toggle label="Enabled" name="AutoModeEnable" />
-            <ui:Foldout text="Advanced" value="false">
-                <ui:Toggle label="Logging" name="LogOptionEnabled" />
-                <ui:Button text="Log Folder Open" display-tooltip-when-elided="true" name="LogOpenBtn" style="width: 150px;" />
-            </ui:Foldout>
-        </ui:VisualElement>
-        <ui:Foldout text="CounterData" value="true" style="flex-shrink: 0; margin-top: 15px;">
+        <ui:Foldout text="Auto ShaderVariantCollection Asset create" style="flex-shrink: 0;">
+            <ui:VisualElement style="margin-left: 20px;">
+                <ui:VisualElement style="flex-wrap: nowrap; flex-direction: row;">
+                    <uie:ObjectField label="Target ShaderVarinat Collection Asset" name="TargetShaderVariantCollection" />
+                    <ui:Button text="Create New" display-tooltip-when-elided="true" name="CreateNewTargetBtn" />
+                </ui:VisualElement>
+                <ui:Toggle label="Enabled" name="AutoModeEnable" />
+                <ui:Foldout text="Advanced" value="false">
+                    <ui:Toggle label="Logging" name="LogOptionEnabled" />
+                    <ui:Button text="Log Folder Open" display-tooltip-when-elided="true" name="LogOpenBtn" style="width: 150px;" />
+                </ui:Foldout>
+            </ui:VisualElement>
+        </ui:Foldout>
+        <ui:Foldout text="CounterData" value="true" style="flex-shrink: 0; margin-top: 0;">
             <ui:VisualElement style="flex-direction: row; flex-shrink: 0;">
                 <ui:VisualElement style="margin-left: 10px; width: 50%;">
                     <ui:Label text="Actual Data" display-tooltip-when-elided="true" name="Label" style="padding-bottom: 5px;" />
@@ -28,11 +32,13 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:Foldout>
-        <ui:Label text="ShaderCompileInformation" display-tooltip-when-elided="true" style="margin-bottom: 0; margin-top: 0; padding-top: 15px;" />
+        <ui:Label text="ShaderCompileInformation" display-tooltip-when-elided="true" style="margin-bottom: 0; margin-top: 0; padding-top: 5px;" />
         <ui:VisualElement style="margin-left: 20px;">
-            <ui:Toggle label="ShowOnlyCurrentFrame" name="ShowOnlyCurrentFrame" />
+            <ui:VisualElement style="flex-direction: row; flex-shrink: 0;">
+                <ui:Toggle label="ShowOnlyCurrentFrame" name="ShowOnlyCurrentFrame" />
+                <ui:Button text="Export to csv" display-tooltip-when-elided="true" name="ExportResultBtn" style="width: 200px;" />
+            </ui:VisualElement>
             <ui:ScrollView name="CompileList" />
-            <ui:Button text="Export to csv" display-tooltip-when-elided="true" name="ExportResultBtn" style="width: 200px;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
