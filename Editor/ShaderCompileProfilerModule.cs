@@ -15,10 +15,10 @@ namespace UTJ.Profiler.ShaderCompileModule
     {
         static readonly ProfilerCounterDescriptor[] k_ChartCounters = new ProfilerCounterDescriptor[]
         {
-        new ProfilerCounterDescriptor("ShaderCompile CreateGpuCount", ProfilerCategory.Scripts),
-        new ProfilerCounterDescriptor("ShaderCompile CreateGpuTime", ProfilerCategory.Scripts),
-        new ProfilerCounterDescriptor("ShaderCompile TotalCount", ProfilerCategory.Scripts),
-        new ProfilerCounterDescriptor("ShaderCompile TotalTime", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("ShaderCompile CreateGpuCount", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("ShaderCompile CreateGpuTime", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("ShaderCompile TotalCount", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("ShaderCompile TotalTime", ProfilerCategory.Scripts),
         };
 
         // Specify a list of Profiler category names, which should be auto-enabled when the module is active.
@@ -32,12 +32,11 @@ namespace UTJ.Profiler.ShaderCompileModule
             // UnityEngine.Debug.Log("CreateModule!!");
             EditorApplication.update += OnUpdate;
         }
-        /*
         public override ProfilerModuleViewController CreateDetailsViewController()
         {
-            return new GarbageCollectionDetailsViewController(ProfilerWindow);
+            return new ShaderCompileModuleDetailsViewController(ProfilerWindow,this);
         }
-        */
+
         void OnUpdate()
         {
             if (!this.ProfilerWindow)

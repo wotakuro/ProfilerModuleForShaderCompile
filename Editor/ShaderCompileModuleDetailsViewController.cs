@@ -13,9 +13,7 @@ namespace UTJ.Profiler.ShaderCompileModule
 {
     internal class ShaderCompileModuleDetailsViewController : ProfilerModuleViewController
     {
-        const string k_UxmlResourceName = "Assets/Editor/GarbageCollectionDetailsView.uxml";
-        const string k_UxmlElementId_GarbageCollectionDetailsViewBarFill = "garbage-collection-details-viewbar-fill";
-        const string k_UxmlElementId_GarbageCollectionDetailsViewBarLabel = "garbage-collection-details-viewbar-label";
+        const string k_UxmlResourceName = "Packages/com.utj.profilermodule.shadercompile/Editor/UXML/ShaderCompileModuleUI.uxml";
 
         static readonly ProfilerCounterDescriptor k_GcReservedMemoryCounterDescriptor = new ProfilerCounterDescriptor("GC Reserved Memory", ProfilerCategory.Memory);
         static readonly ProfilerCounterDescriptor k_GcUsedMemoryCounterDescriptor = new ProfilerCounterDescriptor("GC Used Memory", ProfilerCategory.Memory);
@@ -23,23 +21,20 @@ namespace UTJ.Profiler.ShaderCompileModule
         VisualElement m_BarFill;
         Label m_BarLabel;
 
-        public ShaderCompileModuleDetailsViewController(ProfilerWindow profilerWindow) : base(profilerWindow) { }
+        public ShaderCompileModuleDetailsViewController(ProfilerWindow profilerWindow, ShaderCompileProfilerModule module) : base(profilerWindow) 
+        {
+        }
 
         protected override VisualElement CreateView()
         {
-            /*
             var template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(k_UxmlResourceName);
+            UnityEngine.Debug.Log(template == null);
             var view = template.Instantiate();
 
-            m_BarFill = view.Q<VisualElement>(name: k_UxmlElementId_GarbageCollectionDetailsViewBarFill);
-            m_BarLabel = view.Q<Label>(name: k_UxmlElementId_GarbageCollectionDetailsViewBarLabel);
-
-            ReloadData(ProfilerWindow.selectedFrameIndex);
             ProfilerWindow.SelectedFrameIndexChanged += OnSelectedFrameIndexChanged;
-            */
 
             UnityEngine.Debug.Log("ModuleÅFÅFCreateView");
-            return new VisualElement();
+            return view;
         }
 
         protected override void Dispose(bool disposing)
@@ -54,9 +49,10 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         void OnSelectedFrameIndexChanged(long selectedFrameIndex)
         {
-            ReloadData(selectedFrameIndex);
+            //ReloadData(selectedFrameIndex);
         }
 
+        /*
         void ReloadData(long selectedFrameIndex)
         {
             long gcReservedBytes = 0;
@@ -79,5 +75,6 @@ namespace UTJ.Profiler.ShaderCompileModule
             m_BarFill.style.width = new Length(gcUsedBytesScalar * 100, LengthUnit.Percent);
             m_BarLabel.text = $"{EditorUtility.FormatBytes(gcUsedBytes)} / {EditorUtility.FormatBytes(gcReservedBytes)}";
         }
+        */
     }
 }

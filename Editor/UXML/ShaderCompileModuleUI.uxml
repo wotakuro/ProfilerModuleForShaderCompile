@@ -1,0 +1,39 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:Label text="Shader Compile Information" display-tooltip-when-elided="true" style="font-size: 15px; -unity-font-style: bold;" />
+    <ui:VisualElement style="margin-left: 20px;">
+        <ui:Label text="Auto ShaderVariantCollection Asset create" display-tooltip-when-elided="true" />
+        <ui:VisualElement style="margin-left: 20px; flex-shrink: 0;">
+            <uie:ObjectField label="Target ShaderVarinat Collection Asset" name="TargetShaderVariantCollection" />
+            <ui:Toggle label="Enabled" name="AutoModeEnable" />
+            <ui:Foldout text="Advanced" value="false">
+                <ui:Toggle label="Logging" name="LogOption" />
+                <ui:Button text="Log Folder Open" display-tooltip-when-elided="true" name="LogOpen" style="width: 150px;" />
+            </ui:Foldout>
+        </ui:VisualElement>
+        <ui:Foldout text="CounterData" value="true" style="flex-shrink: 0; margin-top: 15px;">
+            <ui:VisualElement style="flex-direction: row; flex-shrink: 0;">
+                <ui:VisualElement style="margin-left: 10px; width: 50%;">
+                    <ui:Label text="Actual Data" display-tooltip-when-elided="true" name="Label" />
+                    <ui:Label text="ShaderCompile CreateGpuTime" display-tooltip-when-elided="true" name="PrevCreateGpuTime" />
+                    <ui:Label text="ShaderCompile TotalCount" display-tooltip-when-elided="true" name="PrevTotalCount" />
+                    <ui:Label text="ShaderCompile TotalTime" display-tooltip-when-elided="true" name="PrevTotalData" />
+                    <ui:Label text="ShaderCompile CreateGpuCount " display-tooltip-when-elided="true" name="PrevCreateGpuCount" />
+                </ui:VisualElement>
+                <ui:VisualElement style="margin-left: 10px; width: 50%;">
+                    <ui:Label text="Current frame data" display-tooltip-when-elided="true" name="Label" />
+                    <ui:Label text="[Notice]The graph data is 1 frame delayed." display-tooltip-when-elided="true" name="Notice" />
+                    <ui:Label text="ShaderCompile CreateGpuTime" display-tooltip-when-elided="true" name="CurrentCreateGpuTime" />
+                    <ui:Label text="ShaderCompile TotalCount" display-tooltip-when-elided="true" name="CurrentTotalCount" />
+                    <ui:Label text="ShaderCompile TotalTime" display-tooltip-when-elided="true" name="CurrentTotalData" />
+                    <ui:Label text="ShaderCompile CreateGpuCount " display-tooltip-when-elided="true" name="CurrentCreateGpuCount" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:Foldout>
+        <ui:Label text="ShaderCompileInformation" display-tooltip-when-elided="true" style="margin-bottom: 0; margin-top: 0; padding-top: 15px;" />
+        <ui:VisualElement style="margin-left: 20px;">
+            <ui:Toggle label="ShowOnlyCurrentFrame" />
+            <ui:ScrollView name="CompileList" />
+            <ui:Button text="Export to csv" display-tooltip-when-elided="true" name="ExportResult" style="width: 200px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
