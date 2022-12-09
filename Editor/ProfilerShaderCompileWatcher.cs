@@ -24,6 +24,7 @@ namespace UTJ.Profiler.ShaderCompileModule
         private ShaderVariantCollection targetAsset = null;
         private StringBuilder stringBuilder = new StringBuilder();
         private string logFile;
+        private bool isFirstLog = true;
 
 
         public void ScanLatest()
@@ -195,6 +196,21 @@ namespace UTJ.Profiler.ShaderCompileModule
             }
             stringBuilder.Clear();
 
+            if (isFirstLog)
+            {
+                if (!System.IO.File.Exists(this.logFile))
+                {
+                    string dir = System.IO.Path.GetDirectoryName(this.logFile);
+                    if (!System.IO.Directory.Exists(dir))
+                    {
+                        System.IO.Directory.CreateDirectory(dir);
+                    }
+                    string header = "frameIdx,Shader,exec(ms),isWarmupCall,pass,stage,keyword,\n";
+                    System.IO.File.WriteAllText(logFile, header);
+                }
+                isFirstLog = false;
+            }
+
             foreach (var info in compileInfoList)
             {
                 stringBuilder.Append(info.frameIdx).Append(",").
@@ -207,19 +223,16 @@ namespace UTJ.Profiler.ShaderCompileModule
             System.IO.File.AppendAllText(logFile, stringBuilder.ToString());
         }
 
-        public void SetFile(string file)
+        public void SetLogFile(string file)
         {
+            this.isFirstLog = (this.logFile != file);
             this.logFile = file;
-            if (!System.IO.File.Exists(file))
-            {
-                string header = "frameIdx,Shader,exec(ms),isWarmupCall,pass,stage,keyword,\n";
-                System.IO.File.WriteAllText(logFile, header);
-            }
         }
 
         public void SetTarget(ShaderVariantCollection collection)
         {
-            if(collection != null)
+            this.targetAsset = collection;
+            if (collection != null)
             {
                 foreach (var buffer in this.compileInfoByFrameIdx.Values)
                 {
@@ -227,7 +240,6 @@ namespace UTJ.Profiler.ShaderCompileModule
                 }
 
             }
-            this.targetAsset = collection;
         }
     }
 }

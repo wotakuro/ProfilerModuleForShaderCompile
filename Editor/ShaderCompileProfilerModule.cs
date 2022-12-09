@@ -53,7 +53,18 @@ namespace UTJ.Profiler.ShaderCompileModule
             m_watcher = new ProfilerShaderCompileWatcher();
             // UnityEngine.Debug.Log("CreateModule!!");
             EditorApplication.update += OnUpdate;
+
+            // todo 
+
+            this.watcher.SetLogFile("Library/profilermodule.shadercompile/logs/" + GetUniqueFileName() );
         }
+        private string GetUniqueFileName()
+        {
+            var now = System.DateTime.Now;
+            return now.ToString("yyyyMMdd_HHmmss")+
+                "_" + System.Guid.NewGuid().ToString() + ".log";
+        }
+
         public override ProfilerModuleViewController CreateDetailsViewController()
         {
             return new ShaderCompileModuleDetailsViewController(ProfilerWindow,this);

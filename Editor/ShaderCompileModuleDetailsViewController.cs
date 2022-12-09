@@ -92,7 +92,7 @@ namespace UTJ.Profiler.ShaderCompileModule
             // setup
             m_TargetAsset.objectType = typeof(ShaderVariantCollection);
             m_TargetAsset.SetValueWithoutNotify( m_module.targetAsset );
-            m_TargetAsset.RegisterCallback<ChangeEvent<ShaderVariantCollection> >(OnChangeTargetAsset);
+            m_TargetAsset.RegisterValueChangedCallback(OnChangeTargetAsset);
 
             m_AutoCreateEnabled.SetValueWithoutNotify(m_module.autoModeEnabled);
             m_AutoCreateEnabled.RegisterCallback<ChangeEvent<bool>>(OnChangeAutoMode);
@@ -142,16 +142,31 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         private void OnChangeAutoMode(ChangeEvent<bool> evt)
         {
-            m_module.autoModeEnabled = evt.newValue;
+            var enableFlag = evt.newValue;
+            m_module.autoModeEnabled = enableFlag;
+            if (enableFlag)
+            {
+                var target = m_TargetAsset.value as ShaderVariantCollection;               
+                m_module.watcher.SetTarget(target);
+            }
+            else
+            {
+                m_module.watcher.SetTarget(null);
+            }
         }
         private void OnChangeLogEnable(ChangeEvent<bool> evt)
         {
             m_module.logEnabled = evt.newValue;
         }
 
-        private void OnChangeTargetAsset(ChangeEvent<ShaderVariantCollection> evt)
+        private void OnChangeTargetAsset(ChangeEvent<UnityEngine.Object> evt)
         {
-            m_module.targetAsset = evt.newValue;
+            var targetAsset = evt.newValue as ShaderVariantCollection;
+            m_module.targetAsset = targetAsset;
+            if (m_AutoCreateEnabled.value)
+            {
+                m_module.watcher.SetTarget(targetAsset);
+            }
         }
 
         private void OnChangeFilterCurrentFrame(ChangeEvent<bool> evt)
