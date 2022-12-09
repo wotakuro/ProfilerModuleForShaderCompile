@@ -171,7 +171,7 @@ namespace UTJ.Profiling.ShaderCompileModule
                 // total
 
 
-                if (this.totalTimeHandle != IntPtr.Zero)
+                if (this.totalCountHandle != IntPtr.Zero)
                 {
                     unsafe
                     {
@@ -181,7 +181,7 @@ namespace UTJ.Profiling.ShaderCompileModule
                             Size = sizeof(uint),
                             Ptr = UnsafeUtility.AddressOf(ref this.totalCount)
                         };
-                        ProfilerUnsafeUtility.SingleSampleWithMetadata(this.totalTimeHandle, 1, &data);
+                        ProfilerUnsafeUtility.SingleSampleWithMetadata(this.totalCountHandle, 1, &data);
                     }
                 }
                 if (this.totalTimeHandle != IntPtr.Zero)
