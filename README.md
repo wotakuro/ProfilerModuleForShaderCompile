@@ -8,7 +8,7 @@ This tool not only lists ShaderCompiles, but also automatically creates ShaderVa
 <br />
 This is a tool that can be used when you want to see the ShaderCompile that occurs on the actual device.
 <br />
-A sister tool, "UnityShaderVariantLoggerForEditor" is also available.<br />
+A sister tool, [UnityShaderVariantLoggerForEditor](https://github.com/wotakuro/UnityShaderVariantLoggerForEditor) is also available.<br />
 This one is used when you want to keep track of what ShaderCompile is running in the application just for Editor play.
 <br />
 
