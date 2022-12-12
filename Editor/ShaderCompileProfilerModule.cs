@@ -73,9 +73,19 @@ namespace UTJ.Profiler.ShaderCompileModule
                 return m_config.logEnabled; 
             }
             set {
-                Debug.Log("logEnabled!! " + value);
                 this.watcher.SetLogEnabled(value);
                 m_config.logEnabled = value;
+            }
+        }
+        internal bool filterFrame
+        {
+            get
+            {
+                return m_config.filterFrame;
+            }
+            set
+            {
+                m_config.filterFrame = value;
             }
         }
 

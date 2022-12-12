@@ -17,6 +17,8 @@ namespace UTJ.Profiler.ShaderCompileModule
         private bool m_autoEnabled;
         [SerializeField]
         private bool m_logEnabled;
+        [SerializeField]
+        private bool m_filterFrame;
 
         public ShaderVariantCollection target
         {
@@ -57,6 +59,19 @@ namespace UTJ.Profiler.ShaderCompileModule
                 this.Save();
             }
         }
+        public bool filterFrame
+        {
+            get
+            {
+                return m_filterFrame;
+            }
+            set
+            {
+                m_filterFrame = value;
+                this.Save();
+            }
+        }
+
 
         public static Config GetConfig()
         {
@@ -81,6 +96,7 @@ namespace UTJ.Profiler.ShaderCompileModule
                 m_targetPath = "",
                 m_autoEnabled = true,
                 m_logEnabled = true,
+                m_filterFrame = true,
             };
         }
 

@@ -70,16 +70,16 @@ namespace UTJ.Profiler.ShaderCompileModule
             ProfilerDriver.NewProfilerFrameRecorded += OnNewFrameRecorded;
 
 
-            m_CurrentCountLabel = view.Q<Label>("CurrentCreateGpuTime");
-            m_CurrentTimeLabel = view.Q<Label>("CurrentTotalCount");
-            m_CurrentTotalCountLabel = view.Q<Label>("CurrentTotalData");
-            m_CurrentTotalLabel = view.Q<Label>("CurrentCreateGpuCount");
+            m_CurrentCountLabel = view.Q<Label>("CurrentCreateGpuCount");
+            m_CurrentTimeLabel = view.Q<Label>("CurrentCreateGpuTime");
+            m_CurrentTotalCountLabel = view.Q<Label>("CurrentTotalCount");
+            m_CurrentTotalLabel = view.Q<Label>("CurrentTotalData");
 
-            m_NextCountLabel = view.Q<Label>("NextCreateGpuTime");
-            m_NextTimeLabel = view.Q<Label>("NextTotalCount");
-            m_NextTotalCountLabel = view.Q<Label>("NextTotalData");
-            m_NextTotalLabel = view.Q<Label>("NextCreateGpuCount");
-
+            m_NextCountLabel = view.Q<Label>("NextCreateGpuCount");
+            m_NextTimeLabel = view.Q<Label>("NextCreateGpuTime");
+            m_NextTotalCountLabel = view.Q<Label>("NextTotalCount");
+            m_NextTotalLabel = view.Q<Label>("NextTotalData");
+            //m_NextTotalCountLabel
 
             m_TargetAsset = view.Q<ObjectField>("TargetShaderVariantCollection");
             m_CreateNewTargetBtn = view.Q<Button>("CreateNewTargetBtn");
@@ -102,7 +102,7 @@ namespace UTJ.Profiler.ShaderCompileModule
             m_LoggingEnabled.RegisterCallback<ChangeEvent<bool>>(OnChangeLogEnable);
 
             //
-            m_ShowOnlyCurrentFrame.SetValueWithoutNotify(true);
+            m_ShowOnlyCurrentFrame.SetValueWithoutNotify( m_module.filterFrame);
             m_ShowOnlyCurrentFrame.RegisterCallback<ChangeEvent<bool>>(OnChangeFilterCurrentFrame);
 
             // setup btn
@@ -183,6 +183,7 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         private void OnChangeFilterCurrentFrame(ChangeEvent<bool> evt)
         {
+            m_module.filterFrame = evt.newValue;
             SetupShaderInfo(ProfilerWindow.selectedFrameIndex,true);
         }
 
@@ -201,7 +202,6 @@ namespace UTJ.Profiler.ShaderCompileModule
         }
         #endregion UI_EVENT
 
-
         private void SetupCounterData(long selectedFrameIndex,Label compileCount,Label compileTime,Label totalCount,Label totalTime)
         {
             var selectedFrameIndexInt32 =(int)(selectedFrameIndex);
@@ -216,7 +216,7 @@ namespace UTJ.Profiler.ShaderCompileModule
         private void SetupCounterLabel(Label label,RawFrameDataView frameData,ProfilerCounterDescriptor descripter,bool isTime)
         {
             stringBuilder.Clear();
-            stringBuilder.Append(k_CounterDescriptor.Name).Append(" ");
+            stringBuilder.Append(descripter.Name).Append(" ");
 
             if (frameData != null && frameData.valid)
             {

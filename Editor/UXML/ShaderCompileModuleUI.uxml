@@ -18,17 +18,17 @@
             <ui:VisualElement style="flex-direction: row; flex-shrink: 0;">
                 <ui:VisualElement style="margin-left: 10px; width: 50%;">
                     <ui:Label text="Actual Data" display-tooltip-when-elided="true" name="Label" style="padding-bottom: 5px;" />
+                    <ui:Label text="ShaderCompile CreateGpuCount " display-tooltip-when-elided="true" name="NextCreateGpuCount" />
                     <ui:Label text="ShaderCompile CreateGpuTime" display-tooltip-when-elided="true" name="NextCreateGpuTime" />
                     <ui:Label text="ShaderCompile TotalCount" display-tooltip-when-elided="true" name="NextTotalCount" />
                     <ui:Label text="ShaderCompile TotalTime" display-tooltip-when-elided="true" name="NextTotalData" />
-                    <ui:Label text="ShaderCompile CreateGpuCount " display-tooltip-when-elided="true" name="NextCreateGpuCount" />
                 </ui:VisualElement>
                 <ui:VisualElement style="margin-left: 10px; width: 50%;">
                     <ui:Label text="Current frame data  [Notice]The graph data is 1 frame delayed." display-tooltip-when-elided="true" name="Label" style="padding-bottom: 5px;" />
+                    <ui:Label text="ShaderCompile CreateGpuCount " display-tooltip-when-elided="true" name="CurrentCreateGpuCount" />
                     <ui:Label text="ShaderCompile CreateGpuTime" display-tooltip-when-elided="true" name="CurrentCreateGpuTime" />
                     <ui:Label text="ShaderCompile TotalCount" display-tooltip-when-elided="true" name="CurrentTotalCount" />
                     <ui:Label text="ShaderCompile TotalTime" display-tooltip-when-elided="true" name="CurrentTotalData" />
-                    <ui:Label text="ShaderCompile CreateGpuCount " display-tooltip-when-elided="true" name="CurrentCreateGpuCount" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:Foldout>
