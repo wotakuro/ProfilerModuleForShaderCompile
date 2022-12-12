@@ -9,7 +9,7 @@
 <br />
 こちらは、実機上で発生する ShaderCompileを見たいと言ったときに使えるツールです。<br />
 <br />
-姉妹ツール「UnityShaderVariantLoggerForEditor」もあります。<br />
+姉妹ツール「[UnityShaderVariantLoggerForEditor](https://github.com/wotakuro/UnityShaderVariantLoggerForEditor) 」もあります。<br />
 こちらはEditorプレイだけで、アプリ内でどのようなShaderCompileが走るのかを把握したいときに利用します。<br />
 
 ## 利用方法
