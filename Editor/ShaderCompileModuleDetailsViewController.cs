@@ -20,7 +20,6 @@ namespace UTJ.Profiler.ShaderCompileModule
     internal class ShaderCompileModuleDetailsViewController : ProfilerModuleViewController
     {
         const string k_UxmlResourceName = "Packages/com.utj.profilermodule.shadercompile/Editor/UXML/ShaderCompileModuleUI.uxml";
-        const string k_UxmlRowResourceName = "Packages/com.utj.profilermodule.shadercompile/Editor/UXML/compileInfo.uxml";
 
         static readonly ProfilerCounterDescriptor k_CounterDescriptor = new ProfilerCounterDescriptor("ShaderCompile CreateGpuCount", ProfilerCategory.Scripts);
         static readonly ProfilerCounterDescriptor k_TimeDescriptor = new ProfilerCounterDescriptor("ShaderCompile CreateGpuTime", ProfilerCategory.Scripts);
@@ -138,7 +137,31 @@ namespace UTJ.Profiler.ShaderCompileModule
         private void OnClickNewTargetButton()
         {
             var asset = new ShaderVariantCollection();
-            AssetDatabase.CreateAsset(asset, "Assets/Variant.shadervariants");
+
+            bool createFile = false;
+            string file = null;
+            for (int i = 0; i < 100; ++i)
+            {
+                if(i == 0)
+                {
+                    file = "Assets/VariantCollection.shadervariants";
+                }
+                else
+                {
+                    file = "Assets/VariantCollection_" + i+ ".shadervariants";
+                }
+                if (!System.IO.File.Exists(file))
+                {
+                    AssetDatabase.CreateAsset(asset, file);
+                    createFile = true;
+                    break;
+                }
+            }
+            if (!createFile)
+            {
+                file = "Assets/VariantCollection_" + System.Guid.NewGuid().ToString() + ".shadervariants";
+                AssetDatabase.CreateAsset(asset,file);
+            }
             this.m_TargetAsset.value = asset;
         }
 
