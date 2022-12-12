@@ -5,7 +5,8 @@ using UnityEditor;
 using UnityEngine.UIElements;
 using UnityEngine;
 using System.Reflection;
-
+using System.Collections.Generic;
+using UnityEditorInternal;
 //--Module--
 
 namespace UTJ.Profiler.ShaderCompileModule
@@ -21,6 +22,9 @@ namespace UTJ.Profiler.ShaderCompileModule
             new ProfilerCounterDescriptor("ShaderCompile TotalCount", ProfilerCategory.Scripts),
             new ProfilerCounterDescriptor("ShaderCompile TotalTime", ProfilerCategory.Scripts),
         };
+
+        private ShaderCompileRowUI shaderCompileRowUI = new ShaderCompileRowUI();
+
         #region ACCESS_FROM_VIEW
         private ProfilerShaderCompileWatcher m_watcher;
         private ShaderVariantCollection m_targetAsset;
@@ -54,8 +58,8 @@ namespace UTJ.Profiler.ShaderCompileModule
             // UnityEngine.Debug.Log("CreateModule!!");
             EditorApplication.update += OnUpdate;
 
+            ProfilerDriver.NewProfilerFrameRecorded += OnProiflerNewDataRecorded;
             // todo 
-
             this.watcher.SetLogFile("Library/profilermodule.shadercompile/logs/" + GetUniqueFileName() );
         }
         private string GetUniqueFileName()
@@ -71,14 +75,65 @@ namespace UTJ.Profiler.ShaderCompileModule
         }
 
         void OnUpdate()
+
         {
             m_watcher.ScanLatest();
 
             if (!this.ProfilerWindow)
             {
-                //UnityEngine.Debug.Log("DeleteModule!!");
-                EditorApplication.update -= OnUpdate;
+
+                ProfilerDriver.NewProfilerFrameRecorded -= OnProiflerNewDataRecorded;
+                    //UnityEngine.Debug.Log("DeleteModule!!");
+                    EditorApplication.update -= OnUpdate;
             }
+        }
+
+        public void OnClearData()
+        {
+            watcher.ClearData();
+        }
+
+
+        public void OnProfilerLoaded()
+        {
+
+            watcher.ClearData();
+            watcher.ScanAll();
+        }
+
+        public void OnProiflerNewDataRecorded(int connectId,int frameIdx)
+        {
+            watcher.ScanLatest();
+
+        }
+
+
+        public List<ShaderCompileInfo> GetData(bool isOnlyFrame,long frameIdx,out bool shouldUpdate)
+        {
+            if (isOnlyFrame)
+            {
+                shouldUpdate = true;
+                return watcher.GetFrameCompiles((int)frameIdx);
+            }
+            else
+            {
+                shouldUpdate = true;
+                return watcher.allCompileInProfiler;
+            }
+
+        }
+
+        public VisualElement GetShaderRowHeaderUI()
+        {
+            return shaderCompileRowUI.GetDefaultElement();
+        }
+        public VisualElement GetShaderCompileRowUI(ShaderCompileInfo compileInfo)
+        {
+            return shaderCompileRowUI.CreateNode(compileInfo);
+        }
+        public void ClearShaderCompileRowUI()
+        {
+            shaderCompileRowUI.ReleaseAllNodes();
         }
 
         // [Warnning]access via Refection

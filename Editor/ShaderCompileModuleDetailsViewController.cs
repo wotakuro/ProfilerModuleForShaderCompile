@@ -20,6 +20,7 @@ namespace UTJ.Profiler.ShaderCompileModule
     internal class ShaderCompileModuleDetailsViewController : ProfilerModuleViewController
     {
         const string k_UxmlResourceName = "Packages/com.utj.profilermodule.shadercompile/Editor/UXML/ShaderCompileModuleUI.uxml";
+        const string k_UxmlRowResourceName = "Packages/com.utj.profilermodule.shadercompile/Editor/UXML/compileInfo.uxml";
 
         static readonly ProfilerCounterDescriptor k_CounterDescriptor = new ProfilerCounterDescriptor("ShaderCompile CreateGpuCount", ProfilerCategory.Scripts);
         static readonly ProfilerCounterDescriptor k_TimeDescriptor = new ProfilerCounterDescriptor("ShaderCompile CreateGpuTime", ProfilerCategory.Scripts);
@@ -52,6 +53,7 @@ namespace UTJ.Profiler.ShaderCompileModule
         #endregion
 
         ShaderCompileProfilerModule m_module;
+
 
         public ShaderCompileModuleDetailsViewController(ProfilerWindow profilerWindow, ShaderCompileProfilerModule module) : base(profilerWindow) 
         {
@@ -231,54 +233,54 @@ namespace UTJ.Profiler.ShaderCompileModule
         #region PROFILER_EVENT
         private void OnProfilerCleared()
         {
-            m_module.watcher.ClearData();
+            m_module.OnClearData();
             SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
         }
         private void OnProfilerLoaded()
         {
-            m_module.watcher.ClearData();
-            m_module.watcher.ScanAll();
+            m_module.OnProfilerLoaded();
             SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
         }
         private void OnNewFrameRecorded(int connectId, int frameIdx)
         {
-            m_module.watcher.ScanAll();
+            m_module.OnProiflerNewDataRecorded(connectId, frameIdx);
             if (!this.m_ShowOnlyCurrentFrame.value)
             {
                 SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
             }
         }
+
         #endregion PROFILER_EVENT
+        private bool setHeader = false;
+
         private void SetupShaderInfo(long frameIdx,bool filterChange=false)
         {
             var watcher = this.m_module.watcher;
             List<ShaderCompileInfo> compileInfoList;
+            bool shouldUpdate = true;
 
-            if (m_ShowOnlyCurrentFrame.value)
+            compileInfoList = m_module.GetData(m_ShowOnlyCurrentFrame.value, frameIdx, out shouldUpdate);
+
+            if ( !shouldUpdate )
             {
-                compileInfoList = watcher.GetFrameCompiles((int)frameIdx);
+                return;
             }
-            else
-            {
-                compileInfoList = watcher.allCompileInProfiler;
-                if (!watcher.isDirtyAllList && !filterChange)
-                {
-                    return;
-                }
-            }
-
-            Debug.Log("SetupShaderInfo " + frameIdx);
-
+            this.m_module.ClearShaderCompileRowUI();
             m_ShaderCompileList.Clear();
-            // todo
+
             if (compileInfoList != null)
             {
                 foreach (var info in compileInfoList)
                 {
-                    string str = info.frameIdx + ";;" + info.shaderName + ";;" +
-                        info.pass + ";;" + info.stage + ";;" + info.keyword;
-                    m_ShaderCompileList.Add(new Label(str));
+                    m_ShaderCompileList.Add(this.m_module.GetShaderCompileRowUI(info));
                 }
+            }
+            if (!setHeader)
+            {
+                var parent = m_ShaderCompileList.parent;
+                int idx = parent.IndexOf(m_ShaderCompileList);
+                parent.Insert(idx  , m_module.GetShaderRowHeaderUI());
+                setHeader = true;
             }
         }
     }
