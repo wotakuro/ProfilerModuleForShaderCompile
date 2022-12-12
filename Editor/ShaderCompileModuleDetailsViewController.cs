@@ -127,7 +127,7 @@ namespace UTJ.Profiler.ShaderCompileModule
         #region UI_EVENT
         private void OnClickExportCsv()
         {
-
+            this.m_module.ExportCsv();
         }
 
 

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using System.IO;
 
 namespace UTJ.Profiler.ShaderCompileModule
@@ -11,16 +12,78 @@ namespace UTJ.Profiler.ShaderCompileModule
         private const string ConfigFile = "Library/profilermodule.shadercompile/config.json";
 
         [SerializeField]
-        private string targetPath;
+        private string m_targetPath;
         [SerializeField]
-        private bool autoEnabled;
+        private bool m_autoEnabled;
         [SerializeField]
-        private bool logEnabled;
+        private bool m_logEnabled;
 
-        public void Load()
+        public ShaderVariantCollection target
         {
+            set
+            {
+                var path = AssetDatabase.GetAssetPath(value);
 
+                this.m_targetPath = path;
+                Save();
+            }
+            get
+            {
+                return AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>(this.m_targetPath);
+            }
         }
+
+        public bool autoEnabled
+        {
+            get
+            {
+                return m_autoEnabled;
+            }
+            set
+            {
+                m_autoEnabled = value;
+                this.Save();
+            }
+        }
+        public bool logEnabled
+        {
+            get
+            {
+                return m_logEnabled;
+            }
+            set
+            {
+                m_logEnabled = value;
+                this.Save();
+            }
+        }
+
+        public static Config GetConfig()
+        {
+            if (!File.Exists(ConfigFile))
+            {
+                return GetDefault();
+            }
+            try
+            {
+                var str = File.ReadAllText(ConfigFile);
+                return JsonUtility.FromJson<Config>(str);
+            }catch(System.Exception e)
+            {
+                Debug.LogError(e);
+            }
+            return GetDefault();
+        }
+        private static Config GetDefault()
+        {
+            return new Config()
+            {
+                m_targetPath = "",
+                m_autoEnabled = true,
+                m_logEnabled = true,
+            };
+        }
+
         public void Save()
         {
             var str = JsonUtility.ToJson(this);

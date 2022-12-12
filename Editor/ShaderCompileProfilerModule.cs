@@ -136,6 +136,15 @@ namespace UTJ.Profiler.ShaderCompileModule
             shaderCompileRowUI.ReleaseAllNodes();
         }
 
+        public void ExportCsv()
+        {
+            string file = EditorUtility.SaveFilePanel("Export to csv", "", "shaderCompiles", "csv");
+            if (!string.IsNullOrEmpty(file))
+            {
+                this.watcher.ExportToCsv(file);
+            }
+        }
+
         // [Warnning]access via Refection
         private bool IsActiveViaReflection()
         {

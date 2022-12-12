@@ -6,12 +6,13 @@ using UnityEditorInternal;
 using UnityEngine.Profiling;
 using UnityEditor;
 using System.Text;
+using System.IO;
 
 namespace UTJ.Profiler.ShaderCompileModule
 {
     internal class ProfilerShaderCompileWatcher 
     {
-
+        private const string csvHeader = "frameIdx,Shader,exec(ms),isWarmupCall,pass,stage,keyword,\n";
 
         private int shaderCompileMakerId = FrameDataView.invalidMarkerId;
 
@@ -205,8 +206,7 @@ namespace UTJ.Profiler.ShaderCompileModule
                     {
                         System.IO.Directory.CreateDirectory(dir);
                     }
-                    string header = "frameIdx,Shader,exec(ms),isWarmupCall,pass,stage,keyword,\n";
-                    System.IO.File.WriteAllText(logFile, header);
+                    System.IO.File.WriteAllText(logFile, csvHeader);
                 }
                 isFirstLog = false;
             }
@@ -240,6 +240,22 @@ namespace UTJ.Profiler.ShaderCompileModule
                 }
 
             }
+        }
+
+        public void ExportToCsv(string file)
+        {
+            var sb = new StringBuilder();
+            sb.Append(csvHeader);
+            foreach(var info in this.allCompileInProfiler)
+            {
+                sb.Append(info.frameIdx).Append(",").
+                    Append(info.shaderName).Append(",").
+                    Append(info.timeMs).Append(",unknown,").
+                    Append(info.pass).Append(",").
+                    Append(info.stage).Append(",").
+                    Append(info.keyword).Append(",\n");
+            }
+            File.WriteAllText(file, sb.ToString());
         }
     }
 }
