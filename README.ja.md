@@ -1,44 +1,44 @@
-# ProfilerModuleForShaderCompile
+﻿# ProfilerModuleForShaderCompile
 
 
 [English](README.md)<br />
 
-## ���̃c�[���ɂ���
-���̃c�[���� ShaderCompile��Profiler�ňꗗ�ł���悤�ɂ��Ă���Profiler�̊g��Module�ł��B<br />
-�܂��ꗗ�\�����邾���łȂ��A����ShaderCompile��񂩂玩���I��ShaderVariantCollection�A�Z�b�g���쐬����c�[���ł��B<br />
+## このツールについて
+このツールは ShaderCompileをProfilerで一覧できるようにしているProfilerの拡張Moduleです。<br />
+また一覧表示するだけでなく、そのShaderCompile情報から自動的にShaderVariantCollectionアセットを作成するツールです。<br />
 <br />
-������́A���@��Ŕ������� ShaderCompile���������ƌ������Ƃ��Ɏg����c�[���ł��B<br />
+こちらは、実機上で発生する ShaderCompileを見たいと言ったときに使えるツールです。<br />
 <br />
-�o���c�[���uUnityShaderVariantLoggerForEditor�v������܂��B<br />
-�������Editor�v���C�����ŁA�A�v�����łǂ̂悤��ShaderCompile������̂���c���������Ƃ��ɗ��p���܂��B<br />
+姉妹ツール「UnityShaderVariantLoggerForEditor」もあります。<br />
+こちらはEditorプレイだけで、アプリ内でどのようなShaderCompileが走るのかを把握したいときに利用します。<br />
 
-## ���p���@
-### �L�������@�ɂ���
+## 利用方法
+### 有効化方法について
 ![ScreenshotToUnityProfiler](Documentation~/EnableShaderCompileModule.png "How to enable")<br />
-Profiler��Module�ɁuShaderCompile�v������̂ŁA�R�`����L���ɂ��ė��p���܂��B
+ProfilerのModuleに「ShaderCompile」があるので、コチラを有効にして利用します。
 
-### �g����
+### 使い方
 
 ![ScreenshotToUnityProfiler](Documentation~/Screenshot.png "screenshote")<br />
 
 #### 1.Target ShaderVariant Collection
-�������ShaderVariantCollection�A�Z�b�g���w�肷��ƁAProfiler�̏������ɏ����ShaderVariant�𑫂��Ă����܂��B<br />
-Enabled�̃`�F�b�N���O���Ǝ����������݋@�\���I�t�ɂ��邱�Ƃ��o���܂��B
+こちらにShaderVariantCollectionアセットを指定すると、Profilerの情報を元に勝手にShaderVariantを足していきます。<br />
+Enabledのチェックを外すと自動書き込み機能をオフにすることが出来ます。
 
 #### 2.Advanced 
-�����ł�Log�t�@�C���̏����o���Ɋւ���ݒ肪�o���܂��B<br />
-Log�͎����I�� Library/profilermodule.shadercompile/logs �t�H���_�֏����o����܂��B
+ここではLogファイルの書き出しに関する設定が出来ます。<br />
+Logは自動的に Library/profilermodule.shadercompile/logs フォルダへ書き出されます。
 
 #### 3.Counter Data
-���̃t���[���ōs��ꂽShaderCompile�̉񐔂��o���܂��B<br />
-����ShaderCompile�̃J�E���^�[��1�t���[���x��ăJ�E���g����Ă��܂��܂��B<br />
-���̂��߁A1�t���[����̏���Actual�Ƃ��ďo���Ă��܂��B<br />
-�Q�l���܂łɎ��ۂ̃J�E���^�[�f�[�^���o���Ă��܂��B
+そのフレームで行われたShaderCompileの回数を出します。<br />
+ただShaderCompileのカウンターが1フレーム遅れてカウントされてしまいます。<br />
+そのため、1フレーム先の情報をActualとして出しています。<br />
+参考情報までに実際のカウンターデータも出しています。
 
 #### 4.ShaderCompileInformation
 
-Profiler���猩����ShaderCompile��S�Ĉꗗ�ɂ��ďo���Ă��܂��B<br />
-ShowOnlyCurrentFrame�̃`�F�b�N������ƌ��݂̃t���[���̏��̂ݏo���܂��B<br />
+Profilerから見つけたShaderCompileを全て一覧にして出しています。<br />
+ShowOnlyCurrentFrameのチェックを入れると現在のフレームの情報のみ出します。<br />
 <br />
-�܂�"Export to csv"�����鎖�� Profiler���ɂ���S�Ẵt���[����ShaderCompile����CSV�t�@�C���ɏ����o�����Ƃ��\�ɂȂ��Ă��܂��B
+また"Export to csv"をする事で Profiler中にある全てのフレームのShaderCompile情報をCSVファイルに書き出すことが可能になっています。
 

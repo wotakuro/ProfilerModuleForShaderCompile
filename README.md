@@ -1,6 +1,6 @@
-# ProfilerModuleForShaderCompile
+ï»¿# ProfilerModuleForShaderCompile
 
-[“ú–{Œê‚ÍƒRƒ`ƒ‰](README.ja.md)<br />
+[æ—¥æœ¬èªã¯ã‚³ãƒãƒ©](README.ja.md)<br />
 
 ## About 
 This tool is an extension module of the Profiler that allows ShaderCompile to be listed in the Profiler.<br />
@@ -17,7 +17,7 @@ This one is used when you want to keep track of what ShaderCompile is running in
 ![ScreenshotToUnityProfiler](Documentation~/EnableShaderCompileModule.png "How to enable")<br />
 Enable the "Shader Compile" in the ProfilerModules.
 
-### g‚¢•û
+### ä½¿ã„æ–¹
 
 ![ScreenshotToUnityProfiler](Documentation~/Screenshot.png "screenshote")<br />
 
