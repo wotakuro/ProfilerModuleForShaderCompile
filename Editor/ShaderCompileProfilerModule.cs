@@ -18,10 +18,10 @@ namespace UTJ.Profiler.ShaderCompileModule
         private const string LogDir = "Library/profilermodule.shadercompile/logs/";
         static readonly ProfilerCounterDescriptor[] k_ChartCounters = new ProfilerCounterDescriptor[]
         {
-            new ProfilerCounterDescriptor("ShaderCompile CreateGpuCount", ProfilerCategory.Scripts),
-            new ProfilerCounterDescriptor("ShaderCompile CreateGpuTime", ProfilerCategory.Scripts),
-            new ProfilerCounterDescriptor("ShaderCompile TotalCount", ProfilerCategory.Scripts),
-            new ProfilerCounterDescriptor("ShaderCompile TotalTime", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("Shader CreateGpuCount", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("Shader CreateGpuTime", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("Shader TotalCreateGpuCount", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("Shader TotalCreateGpuTime", ProfilerCategory.Scripts),
         };
 
         private ShaderCompileRowUI shaderCompileRowUI = new ShaderCompileRowUI();
