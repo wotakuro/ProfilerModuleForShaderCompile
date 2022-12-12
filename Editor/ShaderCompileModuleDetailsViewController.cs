@@ -133,7 +133,7 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         private void OnClickOpenLogFolderButton()
         {
-
+            m_module.OpenLogDir();
         }
         private void OnClickNewTargetButton()
         {

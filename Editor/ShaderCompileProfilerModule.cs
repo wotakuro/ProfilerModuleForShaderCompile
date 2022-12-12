@@ -15,6 +15,7 @@ namespace UTJ.Profiler.ShaderCompileModule
     [ProfilerModuleMetadata("ShaderCompile")]
     internal class ShaderCompileProfilerModule : ProfilerModule
     {
+        private const string LogDir = "Library/profilermodule.shadercompile/logs/";
         static readonly ProfilerCounterDescriptor[] k_ChartCounters = new ProfilerCounterDescriptor[]
         {
             new ProfilerCounterDescriptor("ShaderCompile CreateGpuCount", ProfilerCategory.Scripts),
@@ -25,11 +26,9 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         private ShaderCompileRowUI shaderCompileRowUI = new ShaderCompileRowUI();
 
+        private Config m_config;
         #region ACCESS_FROM_VIEW
         private ProfilerShaderCompileWatcher m_watcher;
-        private ShaderVariantCollection m_targetAsset;
-        private bool m_automodeEnabled;
-        private bool m_logEnabled;
         #endregion ACCESS_FROM_VIEW
 
         internal ProfilerShaderCompileWatcher watcher
@@ -38,29 +37,49 @@ namespace UTJ.Profiler.ShaderCompileModule
         }
         internal ShaderVariantCollection targetAsset
         {
-            get { return m_targetAsset; }
-            set { m_targetAsset = value; }
+            get { return m_config.target; }
+            set {
+                m_config.target = value;
+            }
         }
         internal bool autoModeEnabled
         {
-            get { return m_automodeEnabled; }
-            set { m_automodeEnabled = value; }
+            get { return m_config.autoEnabled; }
+            set {
+                m_config.autoEnabled = value;
+            }
         }
         internal bool logEnabled
         {
-            get { return m_logEnabled; }
-            set { m_logEnabled = value; }
+            get { 
+                return m_config.logEnabled; }
+            set {
+                if (value)
+                {
+                    this.watcher.SetLogFile(LogDir + GetUniqueFileName());
+                }
+                else
+                {
+                    this.watcher.SetLogFile(null);
+                }
+                m_config.logEnabled = value;
+            }
         }
 
         public ShaderCompileProfilerModule() : base(k_ChartCounters)
         {
+            m_config = Config.GetConfig();
+
             m_watcher = new ProfilerShaderCompileWatcher();
             // UnityEngine.Debug.Log("CreateModule!!");
             EditorApplication.update += OnUpdate;
 
             ProfilerDriver.NewProfilerFrameRecorded += OnProiflerNewDataRecorded;
             // todo 
-            this.watcher.SetLogFile("Library/profilermodule.shadercompile/logs/" + GetUniqueFileName() );
+            if (m_config.logEnabled)
+            {
+                this.watcher.SetLogFile(LogDir + GetUniqueFileName());
+            }
         }
         private string GetUniqueFileName()
         {
@@ -82,9 +101,8 @@ namespace UTJ.Profiler.ShaderCompileModule
             if (!this.ProfilerWindow)
             {
 
-                ProfilerDriver.NewProfilerFrameRecorded -= OnProiflerNewDataRecorded;
-                    //UnityEngine.Debug.Log("DeleteModule!!");
-                    EditorApplication.update -= OnUpdate;
+                ProfilerDriver.NewProfilerFrameRecorded -= OnProiflerNewDataRecorded;                    
+                EditorApplication.update -= OnUpdate;
             }
         }
 
@@ -134,6 +152,11 @@ namespace UTJ.Profiler.ShaderCompileModule
         public void ClearShaderCompileRowUI()
         {
             shaderCompileRowUI.ReleaseAllNodes();
+        }
+
+        public void OpenLogDir()
+        {
+            EditorUtility.RevealInFinder(LogDir);
         }
 
         public void ExportCsv()
