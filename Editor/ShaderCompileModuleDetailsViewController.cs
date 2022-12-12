@@ -169,15 +169,6 @@ namespace UTJ.Profiler.ShaderCompileModule
         {
             var enableFlag = evt.newValue;
             m_module.autoModeEnabled = enableFlag;
-            if (enableFlag)
-            {
-                var target = m_TargetAsset.value as ShaderVariantCollection;               
-                m_module.watcher.SetTarget(target);
-            }
-            else
-            {
-                m_module.watcher.SetTarget(null);
-            }
         }
         private void OnChangeLogEnable(ChangeEvent<bool> evt)
         {
@@ -188,10 +179,6 @@ namespace UTJ.Profiler.ShaderCompileModule
         {
             var targetAsset = evt.newValue as ShaderVariantCollection;
             m_module.targetAsset = targetAsset;
-            if (m_AutoCreateEnabled.value)
-            {
-                m_module.watcher.SetTarget(targetAsset);
-            }
         }
 
         private void OnChangeFilterCurrentFrame(ChangeEvent<bool> evt)

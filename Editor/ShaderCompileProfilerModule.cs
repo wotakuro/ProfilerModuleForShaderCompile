@@ -37,31 +37,44 @@ namespace UTJ.Profiler.ShaderCompileModule
         }
         internal ShaderVariantCollection targetAsset
         {
-            get { return m_config.target; }
+            get { 
+                return m_config.target; 
+            }
             set {
                 m_config.target = value;
+                if (autoModeEnabled)
+                {
+                    this.watcher.SetTarget(value);
+                }
             }
         }
         internal bool autoModeEnabled
         {
-            get { return m_config.autoEnabled; }
-            set {
+            get { 
+                return m_config.autoEnabled; 
+            }
+            set
+            {
+                Debug.Log("autoModeEnabled!! " + value);
                 m_config.autoEnabled = value;
+                if (value)
+                {
+                    this.watcher.SetTarget(this.targetAsset);
+                }
+                else
+                {
+                    this.watcher.SetTarget(null);
+                }
             }
         }
         internal bool logEnabled
         {
             get { 
-                return m_config.logEnabled; }
+                return m_config.logEnabled; 
+            }
             set {
-                if (value)
-                {
-                    this.watcher.SetLogFile(LogDir + GetUniqueFileName());
-                }
-                else
-                {
-                    this.watcher.SetLogFile(null);
-                }
+                Debug.Log("logEnabled!! " + value);
+                this.watcher.SetLogEnabled(value);
                 m_config.logEnabled = value;
             }
         }
@@ -75,12 +88,10 @@ namespace UTJ.Profiler.ShaderCompileModule
             EditorApplication.update += OnUpdate;
 
             ProfilerDriver.NewProfilerFrameRecorded += OnProiflerNewDataRecorded;
-            // todo 
-            if (m_config.logEnabled)
-            {
-                this.watcher.SetLogFile(LogDir + GetUniqueFileName());
-            }
+
+            this.watcher.SetLogFile(LogDir + GetUniqueFileName(), m_config.logEnabled);
         }
+
         private string GetUniqueFileName()
         {
             var now = System.DateTime.Now;

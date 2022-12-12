@@ -14,23 +14,45 @@ namespace UTJ.Profiler.ShaderCompileModule
     {
         private const string csvHeader = "frameIdx,Shader,exec(ms),isWarmupCall,pass,stage,keyword,\n";
 
-        private int shaderCompileMakerId = FrameDataView.invalidMarkerId;
+        private int m_shaderCompileMakerId = FrameDataView.invalidMarkerId;
 
-        private List<int> indexBuffer = new List<int>();
-        private List<ShaderCompileInfo> allFrameBuffer = new List<ShaderCompileInfo>();
-        private Dictionary<int, List<ShaderCompileInfo>> compileInfoByFrameIdx = new Dictionary<int, List<ShaderCompileInfo>>();
-        private bool isDirty = true;
-        private int latestFrameIndex = -1;
+        private List<int> m_indexBuffer = new List<int>();
+        private List<ShaderCompileInfo> m_allFrameBuffer = new List<ShaderCompileInfo>();
+        private Dictionary<int, List<ShaderCompileInfo>> m_compileInfoByFrameIdx = new Dictionary<int, List<ShaderCompileInfo>>();
+        private bool m_isDirty = true;
+        private int m_latestFrameIndex = -1;
 
-        private ShaderVariantCollection targetAsset = null;
-        private StringBuilder stringBuilder = new StringBuilder();
-        private string logFile;
-        private bool isFirstLog = true;
+        private ShaderVariantCollection m_targetAsset = null;
+        private StringBuilder m_stringBuilder = new StringBuilder();
+        private string m_logFile;
+        private long m_lastLogFrameIdx = -1;
+        private bool m_enableLog = false;
+
+        public void SetLogEnabled(bool flag)
+        {
+            m_enableLog = flag;
+            if (flag)
+            {
+                m_indexBuffer.Clear();
+                foreach (var frameIdx in m_compileInfoByFrameIdx.Keys)
+                {
+                    m_indexBuffer.Add(frameIdx);
+                }
+                m_indexBuffer.Sort();
+                foreach(var idx in m_indexBuffer)
+                {
+                    if(idx > this.m_lastLogFrameIdx)
+                    {
+                        this.AddToLogFile(m_compileInfoByFrameIdx[idx], idx);
+                    }
+                }
+            }
+        }
 
 
         public void ScanLatest()
         {
-            int idx = latestFrameIndex;
+            int idx = m_latestFrameIndex;
             if( idx < ProfilerDriver.firstFrameIndex)
             {
                 idx = ProfilerDriver.firstFrameIndex;
@@ -53,34 +75,34 @@ namespace UTJ.Profiler.ShaderCompileModule
         {
             get
             {
-                if (isDirty)
+                if (m_isDirty)
                 {
-                    allFrameBuffer.Clear();
-                    foreach(var kvs in compileInfoByFrameIdx)
+                    m_allFrameBuffer.Clear();
+                    foreach(var kvs in m_compileInfoByFrameIdx)
                     {
                         var frameCompiles = kvs.Value;
                         if(frameCompiles != null)
                         {
                             foreach(var compile in frameCompiles)
                             {
-                                allFrameBuffer.Add(compile);
+                                m_allFrameBuffer.Add(compile);
                             }
                         }
                     }
                 }
-                return allFrameBuffer;
+                return m_allFrameBuffer;
             }
         }
 
         public bool isDirtyAllList
         {
-            get { return isDirty; }
+            get { return m_isDirty; }
         }
 
         public List<ShaderCompileInfo> GetFrameCompiles(int frameIdx)
         {
             List<ShaderCompileInfo> list;
-            if(compileInfoByFrameIdx.TryGetValue(frameIdx, out list))
+            if(m_compileInfoByFrameIdx.TryGetValue(frameIdx, out list))
             {
                 return list;
             }
@@ -89,7 +111,7 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         public void ScanFrame(int frameIdx)
         {
-            if(latestFrameIndex >= frameIdx) { return; }
+            if(m_latestFrameIndex >= frameIdx) { return; }
             List<ShaderCompileInfo> buffer = null;
             for (int threadIndex = 0; ; ++threadIndex)
             {
@@ -99,17 +121,17 @@ namespace UTJ.Profiler.ShaderCompileModule
                         break;
 
 
-                    if (shaderCompileMakerId == FrameDataView.invalidMarkerId)
+                    if (m_shaderCompileMakerId == FrameDataView.invalidMarkerId)
                     {
-                        shaderCompileMakerId = frameData.GetMarkerId("Shader.CreateGPUProgram");
-                        if (shaderCompileMakerId == FrameDataView.invalidMarkerId)
+                        m_shaderCompileMakerId = frameData.GetMarkerId("Shader.CreateGPUProgram");
+                        if (m_shaderCompileMakerId == FrameDataView.invalidMarkerId)
                             break;
                     }
 
                     int sampleCount = frameData.sampleCount;
                     for (int i = 0; i < sampleCount; ++i)
                     {
-                        if (shaderCompileMakerId != frameData.GetSampleMarkerId(i))
+                        if (m_shaderCompileMakerId != frameData.GetSampleMarkerId(i))
                             continue;
 
                         var shaderName = frameData.GetSampleMetadataAsString(i, 0);
@@ -137,57 +159,61 @@ namespace UTJ.Profiler.ShaderCompileModule
 
             if (buffer != null)
             {
-                this.compileInfoByFrameIdx.Add(frameIdx, buffer);
-                isDirty = true;
+                this.m_compileInfoByFrameIdx.Add(frameIdx, buffer);
+                m_isDirty = true;
             }
-            latestFrameIndex = frameIdx;
+            m_latestFrameIndex = frameIdx;
 
             // Set to ShaderVariantCollection
             AddToShaderVariantCollection(buffer);
-            AddToLogFile(buffer);
+            if (m_enableLog && frameIdx > this.m_latestFrameIndex)
+            {
+                AddToLogFile(buffer, frameIdx);
+            }
         }
 
         public void RemoveOldFrames(int frameIdx)
         {
-            this.indexBuffer.Clear();
-            foreach (var idx in this.compileInfoByFrameIdx.Keys)
+            this.m_indexBuffer.Clear();
+            foreach (var idx in this.m_compileInfoByFrameIdx.Keys)
             {
                 if(idx < frameIdx)
                 {
-                    this.indexBuffer.Add(idx);
+                    this.m_indexBuffer.Add(idx);
                 }
             }
-            foreach (var idx in this.indexBuffer)
+            foreach (var idx in this.m_indexBuffer)
             {
-                this.compileInfoByFrameIdx.Remove(idx);
-                isDirty = true;
+                this.m_compileInfoByFrameIdx.Remove(idx);
+                m_isDirty = true;
             }
         }
 
         public void ClearData()
         {
-            latestFrameIndex = 0;
-            this.compileInfoByFrameIdx.Clear();
-            isDirty = true;
+            this.m_latestFrameIndex = 0;
+            this.m_compileInfoByFrameIdx.Clear();
+            this.m_isDirty = true;
+            this.m_lastLogFrameIdx = -1;
         }
 
         private void AddToShaderVariantCollection(List<ShaderCompileInfo> compileInfoList)
         {
-            if(targetAsset == null) { return; }
+            if(m_targetAsset == null) { return; }
             if(compileInfoList == null) { return; }
             foreach (var info in compileInfoList)
             {
                 var variant = info.GetShaderariant();
-                if (!targetAsset.Contains(variant))
+                if (!m_targetAsset.Contains(variant))
                 {
-                    targetAsset.Add(variant);
+                    m_targetAsset.Add(variant);
                 }
             }
         }
-        private void AddToLogFile(List<ShaderCompileInfo> compileInfoList)
+        private void AddToLogFile(List<ShaderCompileInfo> compileInfoList,long frameIdx)
         {
             if (compileInfoList == null) { return; }
-            if (string.IsNullOrEmpty(this.logFile))
+            if (string.IsNullOrEmpty(this.m_logFile))
             {
                 return;
             }
@@ -195,46 +221,47 @@ namespace UTJ.Profiler.ShaderCompileModule
             {
                 return;
             }
-            stringBuilder.Clear();
+            m_stringBuilder.Clear();
 
-            if (isFirstLog)
+            if (m_lastLogFrameIdx == -1)
             {
-                if (!System.IO.File.Exists(this.logFile))
+                if (!System.IO.File.Exists(this.m_logFile))
                 {
-                    string dir = System.IO.Path.GetDirectoryName(this.logFile);
+                    string dir = System.IO.Path.GetDirectoryName(this.m_logFile);
                     if (!System.IO.Directory.Exists(dir))
                     {
                         System.IO.Directory.CreateDirectory(dir);
                     }
-                    System.IO.File.WriteAllText(logFile, csvHeader);
+                    System.IO.File.WriteAllText(m_logFile, csvHeader);
                 }
-                isFirstLog = false;
             }
 
             foreach (var info in compileInfoList)
             {
-                stringBuilder.Append(info.frameIdx).Append(",").
+                m_stringBuilder.Append(info.frameIdx).Append(",").
                     Append(info.shaderName).Append(",").
                     Append(info.timeMs).Append(",unknown,").
                     Append(info.pass).Append(",").
                     Append(info.stage).Append(",").
                     Append(info.keyword).Append(",\n");
             }
-            System.IO.File.AppendAllText(logFile, stringBuilder.ToString());
+            this.m_lastLogFrameIdx = frameIdx;
+            File.AppendAllText(m_logFile, m_stringBuilder.ToString());
         }
 
-        public void SetLogFile(string file)
+        public void SetLogFile(string file,bool enable)
         {
-            this.isFirstLog = (this.logFile != file);
-            this.logFile = file;
+            this.m_lastLogFrameIdx = -1;
+            this.m_logFile = file;
+            this.m_enableLog = enable;
         }
 
         public void SetTarget(ShaderVariantCollection collection)
         {
-            this.targetAsset = collection;
+            this.m_targetAsset = collection;
             if (collection != null)
             {
-                foreach (var buffer in this.compileInfoByFrameIdx.Values)
+                foreach (var buffer in this.m_compileInfoByFrameIdx.Values)
                 {
                     AddToShaderVariantCollection(buffer);
                 }
