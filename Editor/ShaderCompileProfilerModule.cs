@@ -20,8 +20,8 @@ namespace UTJ.Profiler.ShaderCompileModule
         {
             new ProfilerCounterDescriptor("Shader CreateGpuCount", ProfilerCategory.Scripts),
             new ProfilerCounterDescriptor("Shader CreateGpuTime", ProfilerCategory.Scripts),
-            new ProfilerCounterDescriptor("Shader TotalCreateGpuCount", ProfilerCategory.Scripts),
-            new ProfilerCounterDescriptor("Shader TotalCreateGpuTime", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("ShaderCompile TotalCount", ProfilerCategory.Scripts),
+            new ProfilerCounterDescriptor("ShaderCompile TotalTime", ProfilerCategory.Scripts),
         };
 
         private ShaderCompileRowUI shaderCompileRowUI = new ShaderCompileRowUI();

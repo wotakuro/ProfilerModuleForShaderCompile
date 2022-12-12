@@ -23,8 +23,8 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         static readonly ProfilerCounterDescriptor k_CounterDescriptor = new ProfilerCounterDescriptor("Shader CreateGpuCount", ProfilerCategory.Scripts);
         static readonly ProfilerCounterDescriptor k_TimeDescriptor = new ProfilerCounterDescriptor("Shader CreateGpuTime", ProfilerCategory.Scripts);
-        static readonly ProfilerCounterDescriptor k_TotalCounterDescriptor = new ProfilerCounterDescriptor("Shader TotalCreateGpuCount", ProfilerCategory.Scripts);
-        static readonly ProfilerCounterDescriptor k_TotalTimeDescriptor = new ProfilerCounterDescriptor("Shader TotalCreateGpuTime", ProfilerCategory.Scripts);
+        static readonly ProfilerCounterDescriptor k_TotalCounterDescriptor = new ProfilerCounterDescriptor("ShaderCompile TotalCount", ProfilerCategory.Scripts);
+        static readonly ProfilerCounterDescriptor k_TotalTimeDescriptor = new ProfilerCounterDescriptor("ShaderCompile TotalTime", ProfilerCategory.Scripts);
 
         private StringBuilder stringBuilder = new StringBuilder(128);
 

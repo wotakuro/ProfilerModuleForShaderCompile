@@ -110,13 +110,13 @@ namespace UTJ.Profiling.ShaderCompileModule
 
                 // total
                 totalCountHandle = ProfilerUnsafeUtility.CreateMarker(
-                    "Shader TotalCreateGpuCount",
+                    "ShaderCompile TotalCount",
                     ProfilerUnsafeUtility.CategoryScripts, MarkerFlags.Counter, 1);
                 ProfilerUnsafeUtility.SetMarkerMetadata(totalCountHandle, 0, null,
                     (byte)ProfilerMarkerDataType.UInt32, (byte)ProfilerMarkerDataUnit.Count);
 
                 totalTimeHandle = ProfilerUnsafeUtility.CreateMarker(
-                    "Shader TotalCreateGpuTime",
+                    "ShaderCompile TotalTime",
                     ProfilerUnsafeUtility.CategoryScripts, MarkerFlags.Counter, 1);
                 ProfilerUnsafeUtility.SetMarkerMetadata(totalTimeHandle, 0, null,
                     (byte)ProfilerMarkerDataType.Int64, (byte)ProfilerMarkerDataUnit.TimeNanoseconds);
