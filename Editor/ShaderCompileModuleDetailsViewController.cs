@@ -21,8 +21,8 @@ namespace UTJ.Profiler.ShaderCompileModule
     {
         const string k_UxmlResourceName = "Packages/com.utj.profilermodule.shadercompile/Editor/UXML/ShaderCompileModuleUI.uxml";
 
-        static readonly ProfilerCounterDescriptor k_CounterDescriptor = new ProfilerCounterDescriptor("Shader CreateGpuCount", ProfilerCategory.Scripts);
-        static readonly ProfilerCounterDescriptor k_TimeDescriptor = new ProfilerCounterDescriptor("Shader CreateGpuTime", ProfilerCategory.Scripts);
+        static readonly ProfilerCounterDescriptor k_CounterDescriptor = new ProfilerCounterDescriptor("ShaderCompile Count", ProfilerCategory.Scripts);
+        static readonly ProfilerCounterDescriptor k_TimeDescriptor = new ProfilerCounterDescriptor("ShaderCompile Time", ProfilerCategory.Scripts);
         static readonly ProfilerCounterDescriptor k_TotalCounterDescriptor = new ProfilerCounterDescriptor("ShaderCompile TotalCount", ProfilerCategory.Scripts);
         static readonly ProfilerCounterDescriptor k_TotalTimeDescriptor = new ProfilerCounterDescriptor("ShaderCompile TotalTime", ProfilerCategory.Scripts);
 
