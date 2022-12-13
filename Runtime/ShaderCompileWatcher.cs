@@ -20,7 +20,7 @@ namespace UTJ.Profiling.ShaderCompileModule
         static ShaderCompileWatcher instance;
 
         [Preserve]
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         public static void InitPlayerLoop()
         {
             instance = new ShaderCompileWatcher();
@@ -79,12 +79,16 @@ namespace UTJ.Profiling.ShaderCompileModule
         System.IntPtr totalTimeHandle;
 
 
+        [NativeDisableUnsafePtrRestriction]
+        [NonSerialized]
+        System.IntPtr platformCodeHandle;
 
         private int totalCount = 0;
         private long totalNanosec = 0;
 
         private int currentCount = 0;
         private long currentNanosec = 0;
+        private int platformCode;
 
         private ShaderCompileWatcher()
         {
@@ -126,7 +130,18 @@ namespace UTJ.Profiling.ShaderCompileModule
                 ProfilerUnsafeUtility.SetMarkerMetadata(totalTimeHandle, 0, null,
                     (byte)ProfilerMarkerDataType.Int64, (byte)ProfilerMarkerDataUnit.TimeNanoseconds);
 
+                // platform ( hidden)
+                platformCodeHandle = ProfilerUnsafeUtility.CreateMarker(
+                    "ShaderCompile Platform",
+                    ProfilerUnsafeUtility.CategoryScripts, MarkerFlags.Counter, 1);
+                ProfilerUnsafeUtility.SetMarkerMetadata(platformCodeHandle, 0, null,
+                    (byte)ProfilerMarkerDataType.Int32, (byte)ProfilerMarkerDataUnit.Undefined);
+
+                //
+                this.platformCode = (int)Application.platform;
             }
+            this.CommitPlatformCode();
+
         }
 
 
@@ -177,8 +192,6 @@ namespace UTJ.Profiling.ShaderCompileModule
                     }
                 }
                 // total
-
-
                 if (this.totalCountHandle != IntPtr.Zero)
                 {
                     unsafe
@@ -204,6 +217,26 @@ namespace UTJ.Profiling.ShaderCompileModule
                         };
                         ProfilerUnsafeUtility.SingleSampleWithMetadata(this.totalTimeHandle, 1, &data);
                     }
+                }
+                this.CommitPlatformCode();
+
+            }
+
+        }
+        private void CommitPlatformCode()
+        {
+            // hidden platform
+            if (this.platformCodeHandle != IntPtr.Zero)
+            {
+                unsafe
+                {
+                    var data = new ProfilerMarkerData
+                    {
+                        Type = (byte)ProfilerMarkerDataType.Int32,
+                        Size = sizeof(int),
+                        Ptr = UnsafeUtility.AddressOf(ref this.platformCode)
+                    };
+                    ProfilerUnsafeUtility.SingleSampleWithMetadata(this.platformCodeHandle, 1, &data);
                 }
             }
 

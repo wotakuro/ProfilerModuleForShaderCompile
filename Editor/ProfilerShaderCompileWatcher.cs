@@ -7,12 +7,15 @@ using UnityEngine.Profiling;
 using UnityEditor;
 using System.Text;
 using System.IO;
+using Unity.Profiling.Editor;
+using Unity.Profiling;
 
 namespace UTJ.Profiler.ShaderCompileModule
 {
     internal class ProfilerShaderCompileWatcher 
     {
-        private const string csvHeader = "frameIdx,Shader,exec(ms),isWarmupCall,pass,stage,keyword,\n";
+        private const string csvHeader = "frameIdx,Shader,exec(ms),isWarmupCall,pass,stage,keyword,platform,\n";
+        static readonly ProfilerCounterDescriptor k_PlatformCoderDescriptor = new ProfilerCounterDescriptor("ShaderCompile Platform", ProfilerCategory.Scripts);
 
         private int m_shaderCompileMakerId = FrameDataView.invalidMarkerId;
 
@@ -123,7 +126,10 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         public bool ScanFrame(int frameIdx)
         {
-            if(m_latestFrameIndex >= frameIdx) { return true; }
+
+            RuntimePlatform platform = RuntimePlatform.WindowsEditor;
+
+            if (m_latestFrameIndex >= frameIdx) { return true; }
             List<ShaderCompileInfo> buffer = null;
             for (int threadIndex = 0; ; ++threadIndex)
             {
@@ -141,6 +147,16 @@ namespace UTJ.Profiler.ShaderCompileModule
                             break;
                         }
                     }
+
+                    // setup platform code
+                    if(threadIndex == 0)
+                    {
+                        var maker = frameData.GetMarkerId(k_PlatformCoderDescriptor.Name);
+                        int platformCode = (int)frameData.GetCounterValueAsInt(maker);
+                        platform = (RuntimePlatform)platformCode;
+
+                    }
+
 
 
                     if (m_shaderCompileMakerId == FrameDataView.invalidMarkerId)
@@ -169,6 +185,7 @@ namespace UTJ.Profiler.ShaderCompileModule
                             stage = stage,
                             keyword = keyword,
                             timeMs = timeMs,
+                            platform = platform,
                         };
                         if(buffer == null)
                         {
@@ -189,7 +206,7 @@ namespace UTJ.Profiler.ShaderCompileModule
 
             // Set to ShaderVariantCollection
             AddToShaderVariantCollection(buffer);
-            if (m_enableLog && frameIdx > this.m_latestFrameIndex)
+            if (m_enableLog && frameIdx > this.m_lastLogFrameIdx)
             {
                 AddToLogFile(buffer, frameIdx);
             }
@@ -275,7 +292,8 @@ namespace UTJ.Profiler.ShaderCompileModule
                     Append(info.timeMs).Append(",unknown,").
                     Append(info.pass).Append(",").
                     Append(info.stage).Append(",").
-                    Append(info.keyword).Append(",\n");
+                    Append(info.keyword).Append(",").
+                    Append(info.platform.ToString()).Append(",\n");
             }
             this.m_lastLogFrameIdx = frameIdx;
             File.AppendAllText(m_logFile, m_stringBuilder.ToString());
@@ -312,7 +330,8 @@ namespace UTJ.Profiler.ShaderCompileModule
                     Append(info.timeMs).Append(",unknown,").
                     Append(info.pass).Append(",").
                     Append(info.stage).Append(",").
-                    Append(info.keyword).Append(",\n");
+                    Append(info.keyword).Append(",").
+                    Append(info.platform.ToString()).Append(",\n");
             }
             File.WriteAllText(file, sb.ToString());
         }

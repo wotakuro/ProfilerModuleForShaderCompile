@@ -15,6 +15,7 @@ namespace UTJ.Profiler.ShaderCompileModule
         public string stage;
         public string keyword;
         public float timeMs;
+        public RuntimePlatform platform;
 
         public ShaderVariantCollection.ShaderVariant GetShaderariant()
         {

@@ -102,6 +102,12 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         public void Save()
         {
+            string dir = System.IO.Path.GetDirectoryName(ConfigFile);
+            if (!System.IO.Directory.Exists(dir))
+            {
+                System.IO.Directory.CreateDirectory(dir);
+            }
+
             var str = JsonUtility.ToJson(this);
             File.WriteAllText(ConfigFile, str);
         }
