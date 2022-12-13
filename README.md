@@ -17,7 +17,7 @@ This one is used when you want to keep track of what ShaderCompile is running in
 ![ScreenshotToUnityProfiler](Documentation~/EnableShaderCompileModule.png "How to enable")<br />
 Enable the "Shader Compile" in the ProfilerModules.
 
-### 使い方
+### Screenshot and explaination
 
 ![ScreenshotToUnityProfiler](Documentation~/Screenshot.png "screenshote")<br />
 
