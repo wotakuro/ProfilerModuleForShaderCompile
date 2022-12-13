@@ -1,0 +1,5 @@
+<linker>
+	<assembly fullname="ProfilerModuleForShaderCompile.Runtime">
+		<type fullname="UTJ.Profiling.ShaderCompileModule.ShaderCompileWatcher" preserve="all"/>
+	</assembly>
+</linker>

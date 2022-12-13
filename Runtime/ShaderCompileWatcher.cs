@@ -9,12 +9,17 @@ using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
 using UnityEngine.Profiling;
+using UnityEngine.Scripting;
 
+[assembly: AlwaysLinkAssembly]
 namespace UTJ.Profiling.ShaderCompileModule
 {
+    [Preserve]
     internal class ShaderCompileWatcher
     {
         static ShaderCompileWatcher instance;
+
+        [Preserve]
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void InitPlayerLoop()
         {
