@@ -31,6 +31,11 @@ namespace UTJ.Profiler.ShaderCompileModule
         private ProfilerShaderCompileWatcher m_watcher;
         private bool isFirst = true;
 
+
+        private long m_lastShowFrameIdx = -1;
+        private bool m_lastShowIsOnlyFrame = false;
+        private int m_lastShowCompileIdx = -1;
+
         #region ACCESS_FROM_VIEW
 
         internal ProfilerShaderCompileWatcher watcher
@@ -133,12 +138,15 @@ namespace UTJ.Profiler.ShaderCompileModule
         public void OnClearData()
         {
             m_watcher.ClearData();
+            this.m_lastShowCompileIdx = -1;
+            this.m_lastShowFrameIdx = -1;
         }
 
 
         public void OnProfilerLoaded()
         {
-
+            this.m_lastShowCompileIdx = -1;
+            this.m_lastShowFrameIdx = -1;
             m_watcher.ClearData();
             m_watcher.ScanAll();
         }
@@ -158,12 +166,20 @@ namespace UTJ.Profiler.ShaderCompileModule
         {
             if (isOnlyFrame)
             {
-                shouldUpdate = true;
+                shouldUpdate = !m_lastShowIsOnlyFrame;
+                shouldUpdate |= (m_lastShowFrameIdx != frameIdx);
+
+                m_lastShowIsOnlyFrame = true;
+                m_lastShowFrameIdx = frameIdx;
                 return watcher.GetFrameCompiles((int)frameIdx);
             }
             else
             {
-                shouldUpdate = true;
+                shouldUpdate = m_lastShowIsOnlyFrame;
+                shouldUpdate |= (watcher.latestCompileFrameIdx != m_lastShowCompileIdx);
+
+                m_lastShowIsOnlyFrame = false;
+                m_lastShowCompileIdx = watcher.latestCompileFrameIdx;
                 return watcher.allCompileInProfiler;
             }
 

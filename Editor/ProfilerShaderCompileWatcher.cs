@@ -21,12 +21,21 @@ namespace UTJ.Profiler.ShaderCompileModule
         private Dictionary<int, List<ShaderCompileInfo>> m_compileInfoByFrameIdx = new Dictionary<int, List<ShaderCompileInfo>>();
         private bool m_isDirty = true;
         private int m_latestFrameIndex = -1;
+        private int m_latestCompileFrameIdx = -1;
 
         private ShaderVariantCollection m_targetAsset = null;
         private StringBuilder m_stringBuilder = new StringBuilder();
         private string m_logFile;
         private long m_lastLogFrameIdx = -1;
         private bool m_enableLog = false;
+
+        public int latestCompileFrameIdx
+        {
+            get
+            {
+                return m_latestCompileFrameIdx;
+            }
+        }
 
         public void SetLogEnabled(bool flag)
         {
@@ -97,7 +106,7 @@ namespace UTJ.Profiler.ShaderCompileModule
             }
         }
 
-        public bool isDirtyAllList
+        private bool isDirtyAllList
         {
             get { return m_isDirty; }
         }
@@ -174,6 +183,7 @@ namespace UTJ.Profiler.ShaderCompileModule
             {
                 this.m_compileInfoByFrameIdx.Add(frameIdx, buffer);
                 m_isDirty = true;
+                m_latestCompileFrameIdx = frameIdx;
             }
             m_latestFrameIndex = frameIdx;
 
@@ -205,7 +215,8 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         public void ClearData()
         {
-            this.m_latestFrameIndex = 0;
+            this.m_latestFrameIndex = -1;
+            this.m_latestCompileFrameIdx = -1;
             this.m_compileInfoByFrameIdx.Clear();
             this.m_isDirty = true;
             this.m_lastLogFrameIdx = -1;
