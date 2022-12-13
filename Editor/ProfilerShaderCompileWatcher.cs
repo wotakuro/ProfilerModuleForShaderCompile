@@ -231,7 +231,12 @@ namespace UTJ.Profiler.ShaderCompileModule
             foreach (var info in compileInfoList)
             {
                 var variant = info.GetShaderariant();
-                if (!m_targetAsset.Contains(variant))
+                if(variant.shader == null)
+                {
+                    Debug.LogError("[AddToShaderVariantCollection] can not find shader " + info.shaderName);
+                    continue;
+                }
+                if ( !m_targetAsset.Contains(variant))
                 {
                     m_targetAsset.Add(variant);
                 }
