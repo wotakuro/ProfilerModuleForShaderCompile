@@ -125,6 +125,7 @@ namespace UTJ.Profiler.ShaderCompileModule
         {
             if (!disposing)
                 return;
+            this.m_module.OnDisposeController();
             ProfilerWindow.SelectedFrameIndexChanged -= OnSelectedFrameIndexChanged;
             base.Dispose(disposing);
         }

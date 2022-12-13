@@ -35,6 +35,7 @@ namespace UTJ.Profiler.ShaderCompileModule
         private long m_lastShowFrameIdx = -1;
         private bool m_lastShowIsOnlyFrame = false;
         private int m_lastShowCompileIdx = -1;
+        private bool m_isControllerAvailable = false;
 
         #region ACCESS_FROM_VIEW
 
@@ -103,6 +104,9 @@ namespace UTJ.Profiler.ShaderCompileModule
             m_watcher = new ProfilerShaderCompileWatcher();
             EditorApplication.update += OnUpdate;
             ProfilerDriver.NewProfilerFrameRecorded += OnProiflerNewDataRecorded;
+            ProfilerDriver.profileLoaded += OnProfilerLoaded;
+            ProfilerDriver.profileCleared += OnClearData;
+
             this.watcher.SetLogFile(LogDir + GetUniqueFileName(), m_config.logEnabled);
         }
 
@@ -116,6 +120,10 @@ namespace UTJ.Profiler.ShaderCompileModule
         public override ProfilerModuleViewController CreateDetailsViewController()
         {
             //if (ProcessService.level == ProcessLevel.Main){}
+            this.m_isControllerAvailable = true;
+
+            ProfilerDriver.profileLoaded -= OnProfilerLoaded;
+            ProfilerDriver.profileCleared -= OnClearData;
             return new ShaderCompileModuleDetailsViewController(ProfilerWindow, this);
         }
 
@@ -131,6 +139,11 @@ namespace UTJ.Profiler.ShaderCompileModule
             {
 
                 ProfilerDriver.NewProfilerFrameRecorded -= OnProiflerNewDataRecorded;
+                if (!m_isControllerAvailable)
+                {
+                    ProfilerDriver.profileLoaded -= OnProfilerLoaded;
+                    ProfilerDriver.profileCleared -= OnClearData;
+                }
                 EditorApplication.update -= OnUpdate;
             }
         }
@@ -149,6 +162,16 @@ namespace UTJ.Profiler.ShaderCompileModule
             this.m_lastShowFrameIdx = -1;
             m_watcher.ClearData();
             m_watcher.ScanAll();
+        }
+
+        public void OnDisposeController()
+        {
+            this.m_lastShowCompileIdx = -1;
+            this.m_lastShowFrameIdx = -1;
+            this.m_isControllerAvailable = false;
+
+            ProfilerDriver.profileLoaded += OnProfilerLoaded;
+            ProfilerDriver.profileCleared += OnClearData;
         }
 
         public void OnProiflerNewDataRecorded(int connectId,int frameIdx)
