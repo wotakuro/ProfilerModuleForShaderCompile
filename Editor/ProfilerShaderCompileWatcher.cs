@@ -59,7 +59,10 @@ namespace UTJ.Profiler.ShaderCompileModule
             }
             for (int i = idx; i < ProfilerDriver.lastFrameIndex; i++)
             {
-                ScanFrame(i);
+                if( !ScanFrame(i))
+                {
+                    break;
+                }
             }
         }
 
@@ -109,16 +112,26 @@ namespace UTJ.Profiler.ShaderCompileModule
             return null;
         }
 
-        public void ScanFrame(int frameIdx)
+        public bool ScanFrame(int frameIdx)
         {
-            if(m_latestFrameIndex >= frameIdx) { return; }
+            if(m_latestFrameIndex >= frameIdx) { return true; }
             List<ShaderCompileInfo> buffer = null;
             for (int threadIndex = 0; ; ++threadIndex)
             {
                 using (RawFrameDataView frameData = ProfilerDriver.GetRawFrameDataView(frameIdx, threadIndex))
                 {
                     if (!frameData.valid)
-                        break;
+                    {
+                        //Debug.LogError("frameData invalid " + frameIdx +"--" + threadIndex);
+                        //return true;
+                        if (threadIndex == 0)
+                        {
+                            return false;
+                        }
+                        else { 
+                            break;
+                        }
+                    }
 
 
                     if (m_shaderCompileMakerId == FrameDataView.invalidMarkerId)
@@ -170,6 +183,7 @@ namespace UTJ.Profiler.ShaderCompileModule
             {
                 AddToLogFile(buffer, frameIdx);
             }
+            return true;
         }
 
         public void RemoveOldFrames(int frameIdx)
@@ -199,7 +213,9 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         private void AddToShaderVariantCollection(List<ShaderCompileInfo> compileInfoList)
         {
-            if(m_targetAsset == null) { return; }
+            if(m_targetAsset == null) {
+                return;
+            }
             if(compileInfoList == null) { return; }
             foreach (var info in compileInfoList)
             {

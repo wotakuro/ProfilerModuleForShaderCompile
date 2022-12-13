@@ -53,6 +53,8 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         ShaderCompileProfilerModule m_module;
 
+        private bool setHeader = false;
+        private Label noHitItem;
 
         public ShaderCompileModuleDetailsViewController(ProfilerWindow profilerWindow, ShaderCompileProfilerModule module) : base(profilerWindow) 
         {
@@ -110,7 +112,12 @@ namespace UTJ.Profiler.ShaderCompileModule
             m_OpenLogFolder.clicked += OnClickOpenLogFolderButton;
             m_ExportCsv.clicked += OnClickExportCsv;
 
-            SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
+            OnSelectedFrameIndexChanged(ProfilerWindow.selectedFrameIndex);
+
+            if (!this.m_ShowOnlyCurrentFrame.value)
+            {
+                SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
+            }
             return view;
         }
 
@@ -261,7 +268,6 @@ namespace UTJ.Profiler.ShaderCompileModule
         }
 
         #endregion PROFILER_EVENT
-        private bool setHeader = false;
 
         private void SetupShaderInfo(long frameIdx,bool filterChange=false)
         {
@@ -271,26 +277,46 @@ namespace UTJ.Profiler.ShaderCompileModule
 
             compileInfoList = m_module.GetData(m_ShowOnlyCurrentFrame.value, frameIdx, out shouldUpdate);
 
-            if ( !shouldUpdate )
+            if (!shouldUpdate)
             {
                 return;
             }
+
+            if (!setHeader)
+            {
+                var parent = m_ShaderCompileList.parent;
+                int idx = parent.IndexOf(m_ShaderCompileList);
+                parent.Insert(idx, m_module.GetShaderRowHeaderUI());
+                noHitItem = new Label("No ShaderCompile ");
+                parent.Insert(idx, noHitItem);
+                setHeader = true;
+            }
+
+
+
             this.m_module.ClearShaderCompileRowUI();
             m_ShaderCompileList.Clear();
 
             if (compileInfoList != null)
             {
+
+                m_module.GetShaderRowHeaderUI().style.display = DisplayStyle.Flex;
                 foreach (var info in compileInfoList)
                 {
                     m_ShaderCompileList.Add(this.m_module.GetShaderCompileRowUI(info));
                 }
+                if (noHitItem!=null)
+                {
+                    noHitItem.style.display = DisplayStyle.None;
+                }
             }
-            if (!setHeader)
+            else
             {
-                var parent = m_ShaderCompileList.parent;
-                int idx = parent.IndexOf(m_ShaderCompileList);
-                parent.Insert(idx  , m_module.GetShaderRowHeaderUI());
-                setHeader = true;
+                m_module.GetShaderRowHeaderUI().style.display = DisplayStyle.None;
+                if (noHitItem != null)
+                {
+                    noHitItem.style.display = DisplayStyle.Flex;
+                }
             }
         }
     }

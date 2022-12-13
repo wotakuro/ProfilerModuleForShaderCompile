@@ -133,9 +133,12 @@ namespace UTJ.Profiling.ShaderCompileModule
             this.currentNanosec = 0;
             unsafe
             {
-                var currentSample = createGpuRecord.GetSample(0);
-                this.currentCount += (int)currentSample.Count;
-                this.currentNanosec += currentSample.Value;
+                if (createGpuRecord.Count > 0)
+                {
+                    var currentSample = createGpuRecord.GetSample(0);
+                    this.currentCount += (int)currentSample.Count;
+                    this.currentNanosec += currentSample.Value;
+                }
             }
             this.totalCount += this.currentCount;
             this.totalNanosec += this.currentNanosec;

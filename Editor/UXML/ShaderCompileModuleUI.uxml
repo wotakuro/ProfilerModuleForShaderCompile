@@ -32,13 +32,14 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:Foldout>
-        <ui:Label text="ShaderCompileInformation" display-tooltip-when-elided="true" style="margin-bottom: 0; margin-top: 0; padding-top: 5px;" />
-        <ui:VisualElement style="margin-left: 20px;">
+        <ui:Foldout text="ShaderCompileInformation">
             <ui:VisualElement style="flex-direction: row; flex-shrink: 0;">
                 <ui:Toggle label="ShowOnlyCurrentFrame" name="ShowOnlyCurrentFrame" />
                 <ui:Button text="Export to csv" display-tooltip-when-elided="true" name="ExportResultBtn" style="width: 200px;" />
             </ui:VisualElement>
-            <ui:ScrollView name="CompileList" style="padding-bottom: 10px;" />
-        </ui:VisualElement>
+            <ui:VisualElement style="margin-left: 10px;">
+                <ui:ScrollView name="CompileList" style="padding-bottom: 10px;" />
+            </ui:VisualElement>
+        </ui:Foldout>
     </ui:VisualElement>
 </ui:UXML>

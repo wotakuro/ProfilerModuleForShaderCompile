@@ -7,6 +7,7 @@ using UnityEngine;
 using System.Reflection;
 using System.Collections.Generic;
 using UnityEditorInternal;
+using UnityEditor.MPE;
 //--Module--
 
 namespace UTJ.Profiler.ShaderCompileModule
@@ -27,9 +28,10 @@ namespace UTJ.Profiler.ShaderCompileModule
         private ShaderCompileRowUI shaderCompileRowUI = new ShaderCompileRowUI();
 
         private Config m_config;
-        #region ACCESS_FROM_VIEW
         private ProfilerShaderCompileWatcher m_watcher;
-        #endregion ACCESS_FROM_VIEW
+        private bool isFirst = true;
+
+        #region ACCESS_FROM_VIEW
 
         internal ProfilerShaderCompileWatcher watcher
         {
@@ -55,7 +57,6 @@ namespace UTJ.Profiler.ShaderCompileModule
             }
             set
             {
-                Debug.Log("autoModeEnabled!! " + value);
                 m_config.autoEnabled = value;
                 if (value)
                 {
@@ -88,17 +89,15 @@ namespace UTJ.Profiler.ShaderCompileModule
                 m_config.filterFrame = value;
             }
         }
+        #endregion ACCESS_FROM_VIEW
 
         public ShaderCompileProfilerModule() : base(k_ChartCounters)
         {
             m_config = Config.GetConfig();
 
             m_watcher = new ProfilerShaderCompileWatcher();
-            // UnityEngine.Debug.Log("CreateModule!!");
             EditorApplication.update += OnUpdate;
-
             ProfilerDriver.NewProfilerFrameRecorded += OnProiflerNewDataRecorded;
-
             this.watcher.SetLogFile(LogDir + GetUniqueFileName(), m_config.logEnabled);
         }
 
@@ -111,39 +110,47 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         public override ProfilerModuleViewController CreateDetailsViewController()
         {
-            return new ShaderCompileModuleDetailsViewController(ProfilerWindow,this);
+            //if (ProcessService.level == ProcessLevel.Main){}
+            return new ShaderCompileModuleDetailsViewController(ProfilerWindow, this);
         }
 
         void OnUpdate()
-
         {
+            if (isFirst)
+            {
+                m_watcher.SetTarget(this.targetAsset);
+                isFirst = false;
+            }
             m_watcher.ScanLatest();
-
             if (!this.ProfilerWindow)
             {
 
-                ProfilerDriver.NewProfilerFrameRecorded -= OnProiflerNewDataRecorded;                    
+                ProfilerDriver.NewProfilerFrameRecorded -= OnProiflerNewDataRecorded;
                 EditorApplication.update -= OnUpdate;
             }
         }
 
         public void OnClearData()
         {
-            watcher.ClearData();
+            m_watcher.ClearData();
         }
 
 
         public void OnProfilerLoaded()
         {
 
-            watcher.ClearData();
-            watcher.ScanAll();
+            m_watcher.ClearData();
+            m_watcher.ScanAll();
         }
 
         public void OnProiflerNewDataRecorded(int connectId,int frameIdx)
         {
-            watcher.ScanLatest();
-
+            if (isFirst)
+            {
+                m_watcher.SetTarget(this.targetAsset);
+                isFirst = false;
+            }
+            m_watcher.ScanLatest();
         }
 
 
