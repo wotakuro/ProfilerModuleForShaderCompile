@@ -104,6 +104,7 @@ namespace UTJ.Profiler.ShaderCompileModule
                             }
                         }
                     }
+                    m_isDirty = false;
                 }
                 return m_allFrameBuffer;
             }
