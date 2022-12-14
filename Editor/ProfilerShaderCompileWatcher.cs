@@ -213,7 +213,7 @@ namespace UTJ.Profiler.ShaderCompileModule
             return true;
         }
 
-        public void RemoveOldFrames(int frameIdx)
+        public bool RemoveOldFrames(int frameIdx)
         {
             this.m_indexBuffer.Clear();
             foreach (var idx in this.m_compileInfoByFrameIdx.Keys)
@@ -228,6 +228,7 @@ namespace UTJ.Profiler.ShaderCompileModule
                 this.m_compileInfoByFrameIdx.Remove(idx);
                 m_isDirty = true;
             }
+            return m_isDirty;
         }
 
         public void ClearData()

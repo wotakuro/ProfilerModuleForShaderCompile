@@ -274,11 +274,11 @@ namespace UTJ.Profiler.ShaderCompileModule
         {
             var watcher = this.m_module.watcher;
             List<ShaderCompileInfo> compileInfoList;
-            bool shouldUpdate = true;
+            bool shouldClear ,shouldAdd;
 
-            compileInfoList = m_module.GetData(m_ShowOnlyCurrentFrame.value, frameIdx, out shouldUpdate);
+            compileInfoList = m_module.GetData(m_ShowOnlyCurrentFrame.value, frameIdx, out shouldClear,out shouldAdd);
 
-            if (!shouldUpdate)
+            if (!shouldClear && !shouldAdd)
             {
                 return;
             }
@@ -294,21 +294,25 @@ namespace UTJ.Profiler.ShaderCompileModule
             }
 
 
-
-            this.m_module.ClearShaderCompileRowUI();
-            m_ShaderCompileList.Clear();
+            if (shouldClear)
+            {
+                this.m_module.ClearShaderCompileRowUI();
+                m_ShaderCompileList.Clear();
+            }
 
             if (compileInfoList != null && compileInfoList.Count > 0)
             {
-
                 m_module.GetShaderRowHeaderUI().style.display = DisplayStyle.Flex;
-                foreach (var info in compileInfoList)
+                if (shouldAdd)
                 {
-                    m_ShaderCompileList.Add(this.m_module.GetShaderCompileRowUI(info));
-                }
-                if (noHitItem!=null)
-                {
-                    noHitItem.style.display = DisplayStyle.None;
+                    foreach (var info in compileInfoList)
+                    {
+                        m_ShaderCompileList.Add(this.m_module.GetShaderCompileRowUI(info));
+                    }
+                    if (noHitItem != null)
+                    {
+                        noHitItem.style.display = DisplayStyle.None;
+                    }
                 }
             }
             else

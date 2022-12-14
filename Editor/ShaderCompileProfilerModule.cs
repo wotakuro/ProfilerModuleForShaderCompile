@@ -184,6 +184,11 @@ namespace UTJ.Profiler.ShaderCompileModule
                 m_watcher.SetTarget(this.targetAsset);
                 isFirst = false;
             }
+            bool flag = m_watcher.RemoveOldFrames(ProfilerDriver.firstFrameIndex);
+            if (flag)
+            {
+                this.m_lastShowCompileIdx = -1;
+            }
             m_watcher.ScanLatest();
             if (m_targetController != null)
             {
@@ -201,12 +206,13 @@ namespace UTJ.Profiler.ShaderCompileModule
         }
 
 
-        public List<ShaderCompileInfo> GetData(bool isOnlyFrame,long frameIdx,out bool shouldUpdate)
+        public List<ShaderCompileInfo> GetData(bool isOnlyFrame,long frameIdx,out bool shouldClear,out bool shouldAdd)
         {
             if (isOnlyFrame)
             {
-                shouldUpdate = !m_lastShowIsOnlyFrame;
-                shouldUpdate |= (m_lastShowFrameIdx != frameIdx);
+                shouldClear = !m_lastShowIsOnlyFrame;
+                shouldClear |= (m_lastShowFrameIdx != frameIdx);
+                shouldAdd = shouldClear;
 
                 m_lastShowIsOnlyFrame = true;
                 m_lastShowFrameIdx = frameIdx;
@@ -214,8 +220,10 @@ namespace UTJ.Profiler.ShaderCompileModule
             }
             else
             {
-                shouldUpdate = m_lastShowIsOnlyFrame;
-                shouldUpdate |= (watcher.latestCompileFrameIdx != m_lastShowCompileIdx);
+                shouldAdd = m_lastShowIsOnlyFrame;
+                shouldAdd |= (watcher.latestCompileFrameIdx != m_lastShowCompileIdx);
+                // todo
+                shouldClear = shouldAdd;
 
                 m_lastShowIsOnlyFrame = false;
                 m_lastShowCompileIdx = watcher.latestCompileFrameIdx;
