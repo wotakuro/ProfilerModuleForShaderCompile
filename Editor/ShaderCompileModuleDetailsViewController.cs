@@ -67,9 +67,6 @@ namespace UTJ.Profiler.ShaderCompileModule
             var view = template.Instantiate();
 
             ProfilerWindow.SelectedFrameIndexChanged += OnSelectedFrameIndexChanged;
-            ProfilerDriver.profileCleared += OnProfilerCleared;
-            ProfilerDriver.profileLoaded += OnProfilerLoaded;
-            ProfilerDriver.NewProfilerFrameRecorded += OnNewFrameRecorded;
 
 
             m_CurrentCountLabel = view.Q<Label>("CurrentCreateGpuCount");
@@ -249,19 +246,22 @@ namespace UTJ.Profiler.ShaderCompileModule
 
 
         #region PROFILER_EVENT
-        private void OnProfilerCleared()
+        public void OnFirstFrameInModule()
         {
-            m_module.OnClearData();
+            SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
+
+        }
+
+        public void OnProfilerCleared()
+        {
             SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
         }
-        private void OnProfilerLoaded()
+        public void OnProfilerLoaded()
         {
-            m_module.OnProfilerLoaded();
             SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
         }
-        private void OnNewFrameRecorded(int connectId, int frameIdx)
+        public void OnNewFrameRecorded(int connectId, int frameIdx)
         {
-            m_module.OnProiflerNewDataRecorded(connectId, frameIdx);
             if (!this.m_ShowOnlyCurrentFrame.value)
             {
                 SetupShaderInfo(ProfilerWindow.selectedFrameIndex);
@@ -298,7 +298,7 @@ namespace UTJ.Profiler.ShaderCompileModule
             this.m_module.ClearShaderCompileRowUI();
             m_ShaderCompileList.Clear();
 
-            if (compileInfoList != null)
+            if (compileInfoList != null && compileInfoList.Count > 0)
             {
 
                 m_module.GetShaderRowHeaderUI().style.display = DisplayStyle.Flex;

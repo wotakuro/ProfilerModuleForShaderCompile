@@ -29,13 +29,17 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         private Config m_config;
         private ProfilerShaderCompileWatcher m_watcher;
+        [NonSerialized]
         private bool isFirst = true;
 
 
+        [NonSerialized]
         private long m_lastShowFrameIdx = -1;
+        [NonSerialized]
         private bool m_lastShowIsOnlyFrame = false;
+        [NonSerialized]
         private int m_lastShowCompileIdx = -1;
-        private bool m_isControllerAvailable = false;
+        private ShaderCompileModuleDetailsViewController m_targetController = null;
 
         #region ACCESS_FROM_VIEW
 
@@ -120,11 +124,9 @@ namespace UTJ.Profiler.ShaderCompileModule
         public override ProfilerModuleViewController CreateDetailsViewController()
         {
             //if (ProcessService.level == ProcessLevel.Main){}
-            this.m_isControllerAvailable = true;
+            this.m_targetController = new ShaderCompileModuleDetailsViewController(ProfilerWindow, this);
 
-            ProfilerDriver.profileLoaded -= OnProfilerLoaded;
-            ProfilerDriver.profileCleared -= OnClearData;
-            return new ShaderCompileModuleDetailsViewController(ProfilerWindow, this);
+            return this.m_targetController;
         }
 
         void OnUpdate()
@@ -132,25 +134,35 @@ namespace UTJ.Profiler.ShaderCompileModule
             if (isFirst)
             {
                 m_watcher.SetTarget(this.targetAsset);
+                m_watcher.ScanLatest();
+
+                if(this.m_targetController != null)
+                {
+                    m_targetController.OnFirstFrameInModule();
+                }
                 isFirst = false;
             }
-            m_watcher.ScanLatest();
+            else
+            {
+                m_watcher.ScanLatest();
+            }
             if (!this.ProfilerWindow)
             {
 
                 ProfilerDriver.NewProfilerFrameRecorded -= OnProiflerNewDataRecorded;
-                if (!m_isControllerAvailable)
-                {
-                    ProfilerDriver.profileLoaded -= OnProfilerLoaded;
-                    ProfilerDriver.profileCleared -= OnClearData;
-                }
                 EditorApplication.update -= OnUpdate;
+                ProfilerDriver.profileLoaded -= OnProfilerLoaded;
+                ProfilerDriver.profileCleared -= OnClearData;
             }
         }
 
         public void OnClearData()
         {
             m_watcher.ClearData();
+            if (m_targetController != null)
+            {
+                m_targetController.OnProfilerCleared();
+            }
             this.m_lastShowCompileIdx = -1;
             this.m_lastShowFrameIdx = -1;
         }
@@ -158,23 +170,14 @@ namespace UTJ.Profiler.ShaderCompileModule
 
         public void OnProfilerLoaded()
         {
-            this.m_lastShowCompileIdx = -1;
-            this.m_lastShowFrameIdx = -1;
-            m_watcher.ClearData();
             m_watcher.ScanAll();
+            if (m_targetController != null)
+            {
+                m_targetController.OnProfilerLoaded();
+            }
+
         }
-
-        public void OnDisposeController()
-        {
-            this.m_lastShowCompileIdx = -1;
-            this.m_lastShowFrameIdx = -1;
-            this.m_isControllerAvailable = false;
-
-            ProfilerDriver.profileLoaded += OnProfilerLoaded;
-            ProfilerDriver.profileCleared += OnClearData;
-        }
-
-        public void OnProiflerNewDataRecorded(int connectId,int frameIdx)
+        public void OnProiflerNewDataRecorded(int connectId, int frameIdx)
         {
             if (isFirst)
             {
@@ -182,6 +185,19 @@ namespace UTJ.Profiler.ShaderCompileModule
                 isFirst = false;
             }
             m_watcher.ScanLatest();
+            if (m_targetController != null)
+            {
+                m_targetController.OnNewFrameRecorded(connectId,frameIdx);
+            }
+
+        }
+
+        public void OnDisposeController()
+        {
+            this.m_lastShowCompileIdx = -1;
+            this.m_lastShowFrameIdx = -1;
+            this.m_targetController = null;
+
         }
 
 
@@ -205,7 +221,6 @@ namespace UTJ.Profiler.ShaderCompileModule
                 m_lastShowCompileIdx = watcher.latestCompileFrameIdx;
                 return watcher.allCompileInProfiler;
             }
-
         }
 
         public VisualElement GetShaderRowHeaderUI()
