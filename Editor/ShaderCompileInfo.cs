@@ -20,10 +20,13 @@ namespace UTJ.Profiler.ShaderCompileModule
         public ShaderVariantCollection.ShaderVariant GetShaderariant()
         {
             var variant = new ShaderVariantCollection.ShaderVariant();
-
-            variant.shader = GetShader();
+            var shader = GetShader(); ;
+            variant.shader = shader;
             variant.keywords = GetKeywordArray(keyword);
-            variant.passType = GetPassType(pass);
+            string lightMode = ShaderPassLightModeConverter.GetLightModeByPasssName(shader, pass);
+            variant.passType = GetPassType(lightMode);
+
+            //Debug.Log("PassConvert " + pass + " -> " + lightMode);
             return variant;
         }
 
@@ -54,6 +57,10 @@ namespace UTJ.Profiler.ShaderCompileModule
         }
         private static PassType GetPassType(string str)
         {
+            if(str == null)
+            {
+                return PassType.Normal;
+            }
             str = str.ToUpper();
             switch (str)
             {

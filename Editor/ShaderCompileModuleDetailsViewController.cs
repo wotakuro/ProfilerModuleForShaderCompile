@@ -278,6 +278,8 @@ namespace UTJ.Profiler.ShaderCompileModule
 
             compileInfoList = m_module.GetData(m_ShowOnlyCurrentFrame.value, frameIdx, out shouldClear,out shouldAdd);
 
+            //Debug.Log("ShouldClear " + shouldClear + "::Should Add " + shouldAdd);
+
             if (!shouldClear && !shouldAdd)
             {
                 return;
@@ -292,7 +294,6 @@ namespace UTJ.Profiler.ShaderCompileModule
                 parent.Insert(idx, noHitItem);
                 setHeader = true;
             }
-
 
             if (shouldClear)
             {
