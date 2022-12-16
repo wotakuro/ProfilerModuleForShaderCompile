@@ -107,10 +107,21 @@ namespace UTJ.Profiler.ShaderCompileModule
         {
             var data = ShaderUtil.GetShaderData(shader);
             if (data == null) { return ""; }
+            if(data.SubshaderCount <= subidx)
+            {
+                Debug.LogWarning("subshader not found " + shader.name + "  " + subidx);
+                return "";
+            }
             var sub = data.GetSubshader(subidx);
             if (sub == null) { return ""; }
+            if(sub.PassCount <= passIdx)
+            {
+                Debug.LogWarning("pass not found " + shader.name + "  " + subidx +":" + passIdx);
+                return "";
+            }
+
             var pass = sub.GetPass(passIdx);
-            if (sub == null) { return ""; }
+            if (pass == null) { return ""; }
 
             return pass.Name;
         }
