@@ -97,7 +97,17 @@ namespace UTJ.Profiler.ShaderCompileModule
             }
             if (!this.m_currentSubShaderWork.TryAdd(pass, lightMode))
             {
-                Debug.LogWarning("already SubShaderIdx:" + subIdx + "::" + pass + " lightmode:" + lightMode);
+                string alreadyLightmode;
+                if (m_currentSubShaderWork.TryGetValue(pass, out alreadyLightmode))
+                {
+                    var sb = new System.Text.StringBuilder(128);
+                    sb.Append("[ShaderPassLightModeConverter] alreadyIn:")
+                        .Append(this.m_targetShader.name).Append(" subShader:")
+                        .Append(subIdx).Append(" pass ").Append(passIdx).Append(": ")
+                        .Append(pass).Append(" lightmode:")
+                        .Append(alreadyLightmode).Append(" new:").Append(lightMode);
+                    Debug.LogWarning(sb.ToString());
+                }
 
             }
 
