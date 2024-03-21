@@ -13,6 +13,9 @@
 こちらはEditorプレイだけで、アプリ内でどのようなShaderCompileが走るのかを把握したいときに利用します。<br />
 
 ## 利用方法
+### インストールについて
+Packagesフォルダ以下にコチラの中身を入れてください
+
 ### 有効化方法について
 ![ScreenshotToUnityProfiler](Documentation~/EnableShaderCompileModule.png "How to enable")<br />
 ProfilerのModuleに「ShaderCompile」があるので、コチラを有効にして利用します。
