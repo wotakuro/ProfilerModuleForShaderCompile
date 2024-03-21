@@ -13,6 +13,11 @@ This one is used when you want to keep track of what ShaderCompile is running in
 <br />
 
 ## How to use
+
+
+### About installation
+Please put this under the "Packages" folder.
+
 ### How to enabled
 ![ScreenshotToUnityProfiler](Documentation~/EnableShaderCompileModule.png "How to enable")<br />
 Enable the "Shader Compile" in the ProfilerModules.
