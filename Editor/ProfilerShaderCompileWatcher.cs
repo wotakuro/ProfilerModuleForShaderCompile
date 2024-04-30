@@ -159,7 +159,6 @@ namespace UTJ.Profiler.ShaderCompileModule
                     }
 
 
-
                     if (m_shaderCompileMakerId == FrameDataView.invalidMarkerId)
                     {
                         m_shaderCompileMakerId = frameData.GetMarkerId("Shader.CreateGPUProgram");
