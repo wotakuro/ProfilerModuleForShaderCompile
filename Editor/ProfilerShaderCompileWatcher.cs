@@ -172,6 +172,11 @@ namespace UTJ.Profiler.ShaderCompileModule
                     {
                         if (m_shaderCompileMakerId != frameData.GetSampleMarkerId(i))
                             continue;
+                        if(frameData.GetSampleMetadataCount(i) < 4)
+                        {
+                            m_shaderCompileMakerId = FrameDataView.invalidMarkerId;
+                            continue;
+                        }
 
                         var shaderName = frameData.GetSampleMetadataAsString(i, 0);
                         var pass = frameData.GetSampleMetadataAsString(i, 1);
@@ -239,6 +244,11 @@ namespace UTJ.Profiler.ShaderCompileModule
             this.m_compileInfoByFrameIdx.Clear();
             this.m_isDirty = true;
             this.m_lastLogFrameIdx = -1;
+            this.m_shaderCompileMakerId = FrameDataView.invalidMarkerId;
+        }
+        public void ClearMakerId()
+        {
+            this.m_shaderCompileMakerId = FrameDataView.invalidMarkerId;
         }
 
         private void AddToShaderVariantCollection(List<ShaderCompileInfo> compileInfoList)
